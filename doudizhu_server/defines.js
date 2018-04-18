@@ -1,0 +1,2 @@
+
+exports.defaultGoldCount = 100;
