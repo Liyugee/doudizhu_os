@@ -1,0 +1,16 @@
+{
+  "name": "doudizhu_server",
+  "version": "1.0.0",
+  "description": "doudizhu_server",
+  "main": "app.js",
+  "scripts": {
+    "test": "node app.js",
+    "start": "node app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mysql": "^2.15.0",
+    "socket.io": "^2.1.0"
+  }
+}
