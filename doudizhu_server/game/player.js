@@ -1,5 +1,5 @@
 
-const Player = function (spec,socket,cbIndex) {
+const Player = function (spec,socket,cbIndex,gameController) {
     let that = {};
     let _socket = socket;
     console.log("create new player: " + JSON.stringify(spec));
@@ -35,7 +35,17 @@ const Player = function (spec,socket,cbIndex) {
         let callBackIndex = notifyData.callBackIndex;
         switch (type) {
             case "create_room" :
-                notify("create_room",{data:"create_room"},callBackIndex);
+
+                gameController.createRoom({},that,(err,data)=>{
+                    if (err) {
+                        console.log("err: " + err);
+                        notify("create_room",{err:err},callBackIndex);
+                    } else {
+                        console.log("data: " + JSON.stringify(data));
+                        notify("create_room",{data:data},callBackIndex);
+                    }
+                    console.log("回调create room success");
+                });
                 break;
             default :
                 break;

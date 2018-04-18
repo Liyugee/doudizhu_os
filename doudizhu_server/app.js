@@ -16,15 +16,15 @@ myDB.connect({
 //创建玩家信息
 // myDB.createPlayerInfo("10000","1000","小明",5,"http://k1.jsqq.net/uploads/allimg/1610/14230K534-2.jpg");
 
-myDB.getPlayerInfoWithUniqueID("100000",(err,data)=>{
-    console.log("data: " + JSON.stringify(data,null,2));
-});
+// myDB.getPlayerInfoWithUniqueID("100000",(err,data)=>{
+//     console.log("data: " + JSON.stringify(data,null,2));
+// });
 
 app.on("connection",function (socket) {
     console.log("a user connected");
     socket.emit('connection', 'connection success');    //链接客户端测试
     socket.on("notify",(notifyData)=> {
-        console.log("接收 notify " + JSON.stringify(notifyData,null,2));
+        console.log("接收 notify " + JSON.stringify(notifyData));
         // socket.emit("notify",{callBackIndex: data.callBackIndex, data: "login success"});    //测试
         switch (notifyData.type) {
             case "login":
