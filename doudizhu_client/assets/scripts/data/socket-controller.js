@@ -1,5 +1,4 @@
 // import defines from './../defines';
-// const io = require('socket.io-client');
 
 const SocketController = function () {
     let that = {};

@@ -1,5 +1,6 @@
 const Player = require("./player");
 const Room = require("./room");
+const defines = require("./../defines");
 
 /**
  *  游戏管理器game-controller负责管理玩家和房间
@@ -16,23 +17,28 @@ exports.createPlayer = function (data,socket,callBackIndex) {
 
 //创建房间接口
 exports.createRoom = function (data,player,cb) {
-    //todo check goldCount
+    let needCostGold = defines.createRoomConfig[data.rate];
+    if (Player.goldCount < needCostGold) {
+        if (cb) {
+            cb("gold is not enough");
+        }
+    }
     let room = Room(data,player);
     _roomList.push(room);
     if (cb) {
-        cb(null,"create success " + room.roomID);
+        cb(null,room.roomID);
     }
 };
 
 //加入房间接口
 exports.joinRoom = function (data,player,cb) {
-    console.log("房间号data: " + JSON.stringify(data));
+    console.log("roomID: " + JSON.stringify(data));
     for (let i = 0; i < _roomList.length; i++) {
         if(_roomList[i].roomID === data) {
             let room = _roomList[i];
             room.joinPlayer(player);
             if (cb) {
-                cb(null,{gold: room.gold});
+                cb(null,{bottom: room.bottom, rate: room.rate});
             }
             return;
         }

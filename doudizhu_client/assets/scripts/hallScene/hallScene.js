@@ -12,8 +12,6 @@ cc.Class({
         joinRoomPrefab: cc.Prefab
     },
 
-    // LIFE-CYCLE CALLBACKS:
-
     onLoad () {
         this.nickNameLabel.string = global.playerData.nickName;
         this.idLabel.string = "ID:" + global.playerData.accountID;
@@ -44,10 +42,4 @@ cc.Class({
                 break;
         }
     },
-
-    // start () {
-    //
-    // },
-
-    // update (dt) {},
 });

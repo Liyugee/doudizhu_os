@@ -22,7 +22,11 @@ cc.Class({
                     if (err) {
                         console.log("join room err: " + err)
                     } else {
+                        // {"data":{"bottom":10,"rate":2}}
                         console.log("join room ID: " + JSON.stringify(data));
+                         global.playerData.bottom = data.data.bottom;
+                         global.playerData.rate = data.data.rate;
+                         cc.director.loadScene("gameScene");
                     }
                 })
             }

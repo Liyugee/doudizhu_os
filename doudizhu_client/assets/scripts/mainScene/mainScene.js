@@ -16,7 +16,6 @@ cc.Class({
     },
 
     onButtonClick : function (event,customData) {
-        console.log("===================customData data: " + customData);
         switch (customData) {
             case  'wx_login' :
                 global.socket.requestLogin({

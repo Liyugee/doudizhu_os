@@ -52,7 +52,7 @@ app.on("connection",function (socket) {
                                 "avatar_url": notifyData.data.avatarUrl
                             },socket,callBackIndex);
                         } else {
-                            console.log("创建玩家 data: " + JSON.stringify(data,null,2));
+                            console.log("创建玩家 data: " + JSON.stringify(data));
                             gameController.createPlayer(data[0],socket,callBackIndex);
                         }
                     }
