@@ -8,10 +8,9 @@ cc.Class({
         idLabel: cc.Label,
         goldCountLabel: cc.Label,
         headImage: cc.Sprite,
-        createRoomPrefab: cc.Prefab
+        createRoomPrefab: cc.Prefab,
+        joinRoomPrefab: cc.Prefab
     },
-
-    // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
         this.nickNameLabel.string = global.playerData.nickName;
@@ -36,15 +35,11 @@ cc.Class({
                 break;
             case "join_room" :
                 console.log("join_room");
+                let joinRoom = cc.instantiate(this.joinRoomPrefab);
+                joinRoom.parent = this.node;
                 break;
             default :
                 break;
         }
     },
-
-    // start () {
-    //
-    // },
-
-    // update (dt) {},
 });

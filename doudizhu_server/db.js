@@ -1,6 +1,10 @@
 const mysql = require('mysql');
 let client = undefined;
 
+/**
+ * db用于数据库相关操作，如插入、获取
+ */
+
 //数据库命令传输
 const query = function (sql,cb) {
     // console.log("query = " + sql);

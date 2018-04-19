@@ -25,7 +25,7 @@ app.on("connection",function (socket) {
     socket.emit('connection', 'connection success');    //链接客户端测试
     socket.on("notify",(notifyData)=> {
         console.log("接收 notify " + JSON.stringify(notifyData));
-        // socket.emit("notify",{callBackIndex: data.callBackIndex, data: "login success"});    //测试
+        // socket.emit("notify",{callBackIndex: data.callBackIndex, data: "login success"});    //测试'notify'消息
         switch (notifyData.type) {
             case "login":
                 let uniqueID = notifyData.data.uniqueID;
@@ -34,7 +34,7 @@ app.on("connection",function (socket) {
                     if (err) {
                         console.log("err: " + err);
                     } else {
-                        console.log("接收 data: " + JSON.stringify(data));
+                        console.log("userInfo data: " + JSON.stringify(data));
                         if (data.length === 0) {
                             let loginData = notifyData.data;
                             myDB.createPlayerInfo(
@@ -52,7 +52,7 @@ app.on("connection",function (socket) {
                                 "avatar_url": notifyData.data.avatarUrl
                             },socket,callBackIndex);
                         } else {
-                            console.log("创建玩家 data: " + JSON.stringify(data,null,2));
+                            console.log("创建玩家 data: " + JSON.stringify(data));
                             gameController.createPlayer(data[0],socket,callBackIndex);
                         }
                     }

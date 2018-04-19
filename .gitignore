@@ -49,7 +49,7 @@ BundleArtifacts
 libs/
 bin/
 gen/
-assets/
+#assets/
 local.properties
 
 # Ignore python compiled files
