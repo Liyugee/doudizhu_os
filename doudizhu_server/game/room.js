@@ -10,9 +10,14 @@ const getRandomStr = function (count) {
 
 const Room = function (spec,player) {
     let that = {};
-    that.roomID = getRandomStr(5);
+    that.roomID = getRandomStr(6);
+    that.gold = 100;
     let _houseManager = player;
     // that.gold = spec.gold;
+
+    that.joinPlayer = function (player) {
+
+    };
 
     return that;
 };

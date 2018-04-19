@@ -35,7 +35,6 @@ const Player = function (spec,socket,cbIndex,gameController) {
         let callBackIndex = notifyData.callBackIndex;
         switch (type) {
             case "create_room" :
-
                 gameController.createRoom({},that,(err,data)=>{
                     if (err) {
                         console.log("err: " + err);
@@ -45,6 +44,16 @@ const Player = function (spec,socket,cbIndex,gameController) {
                         notify("create_room",{data:data},callBackIndex);
                     }
                     console.log("回调create room success");
+                });
+                break;
+            case "join_room" :
+                console.log("join room data:  " + JSON.stringify(notifyData.data));
+                gameController.joinRoom(notifyData.data,that,(err,data)=>{
+                    if (err) {
+                        notify("join_room",{err: err},callBackIndex);
+                    } else {
+                        notify("join_room",{data: data},callBackIndex);
+                    }
                 });
                 break;
             default :
