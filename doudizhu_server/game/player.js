@@ -35,6 +35,11 @@ const Player = function (spec,socket,cbIndex,gameController) {
         goldCount: that.goldCount
     },cbIndex);
 
+    _socket.on("disconnect",()=>{
+        console.log("player is offline");
+        _room.playerOffline(that);
+    });
+
     _socket.on("notify",(notifyData)=>{
         //解析notifyData数据
         let type = notifyData.type;

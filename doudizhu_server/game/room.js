@@ -9,6 +9,21 @@ const getRandomStr = function (count) {
     return str;
 };
 
+const getSeatIndex = function (playerList) {
+    let z = 0;
+    if (playerList.length === 0) {
+        return z;
+    }
+    for (let i = 0; i < playerList.length; i++) {
+        if (z !== playerList[i].seatIndex) {
+            return z;
+        }
+        z++
+    }
+    console.log("z: " + z);
+    return z;
+};
+
 const Room = function (spec,player) {
     let that = {};
     that.roomID = getRandomStr(6);
@@ -20,6 +35,7 @@ const Room = function (spec,player) {
     let _playerList = [];
     
     that.joinPlayer = function (player) {
+        player.seatIndex = getSeatIndex(_playerList);
         _playerList.push(player);
     };
 
@@ -34,12 +50,20 @@ const Room = function (spec,player) {
                 seatIndex: _playerList[i].seatIndex
             });
         }
-        let index = 0;  //测试座位号
         if (cb) {
             cb({
-                seatIndex: index,
-                playerData: playerData
+                seatIndex: player.seatIndex,
+                playerData: playerData,
+                roomID: that.roomID
             });
+        }
+    };
+
+    that.playerOffline = function (player) {
+        for (let i = 0; i < _playerList.length; i++) {
+            if (_playerList[i].accountID === player.accountID) {
+                _playerList.splice(i,1);
+            }
         }
     };
 
