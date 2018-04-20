@@ -1,10 +1,12 @@
 // import defines from './../defines';
+import EventListener from "./../utility/event-listener";
 
 const SocketController = function () {
     let that = {};
     let _socket = io(defines.serverUrl);
     let _callBackMap = {};
     let _callBackIndex = 0;
+    let _event = EventListener({});     //事件收发
 
     that.init = function () {
 
@@ -16,6 +18,9 @@ const SocketController = function () {
 
     _socket.on("notify",(data)=>{
         console.log("notify: " + JSON.stringify(data));
+        // notify: {"type":"login","data":{"goldCount":100},"callBackIndex":1}
+        // notify: {"type":"create_room","data":{"data":"229540"},"callBackIndex":2}
+        // notify: {"type":"join_room","data":{"data":{"bottom":10,"rate":2}},"callBackIndex":3}
         let callBackIndex = data.callBackIndex;
         if (_callBackMap.hasOwnProperty(callBackIndex)) {
             let cb = _callBackMap[callBackIndex];
@@ -24,6 +29,9 @@ const SocketController = function () {
             } else {
                 cb(null,data.data); //null为占位符，没有err时填null
             }
+        } else {
+            let type = data.type;
+            _event.fire(type,data.data);
         }
     });
 
@@ -55,6 +63,10 @@ const SocketController = function () {
 
     that.requestEnterRoomScene = function (cb) {
         request("enter_room_scene",{},cb);
+    };
+
+    that.onPlayerJoinRoom = function (cb) {
+        _event.on("player_join_room",cb);
     };
 
     return that;

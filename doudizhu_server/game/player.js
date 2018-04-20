@@ -83,6 +83,11 @@ const Player = function (spec,socket,cbIndex,gameController) {
         }
     });
 
+    //服务端发送玩家加入消息
+    that.sendPlayerJoinRoom = function (data) {
+        notify("player_join_room",data,null);
+    };
+
     return that;
 };
 

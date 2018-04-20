@@ -20,8 +20,7 @@ cc.Class({
                 console.log("err: " + err)
             } else {
                 console.log("enter room scene: " + JSON.stringify(data));
-                // enter room scene: {"seatIndex":0,"playerData":[{"nickName":"小明72","accountID":"2933146","avatarUrl":"http://k1.jsqq.net/uploads/allimg/1610/14230K534-2.jpg","gold":100}]}
-                // let seatIndex = data.seatIndex;
+                // enter room scene: {"seatIndex":0,"playerData":[{"nickName":"小明80","accountID":"2290966","avatarUrl":"http://k1.jsqq.net/uploads/allimg/1610/14230K534-2.jpg","gold":100,"seatIndex":0}],"roomID":"229540"}
                 this.playerList = [];
                 this.initPlayerPos(data.seatIndex);
                 let playerData = data.playerData;
@@ -31,7 +30,10 @@ cc.Class({
                     this.addPlayerNode(playerData[i]);
                 }
             }
-        })
+        });
+        global.socket.onPlayerJoinRoom((data)=>{
+            this.addPlayerNode(data);
+        });
     },
 
     initPlayerPos: function (seatIndex) {

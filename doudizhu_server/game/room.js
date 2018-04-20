@@ -36,6 +36,15 @@ const Room = function (spec,player) {
     
     that.joinPlayer = function (player) {
         player.seatIndex = getSeatIndex(_playerList);
+        for (let i = 0; i < _playerList.length; i++) {
+            _playerList[i].sendPlayerJoinRoom({
+                nickName: player.nickName,
+                accountID: player.accountID,
+                avatarUrl: player.avatarUrl,
+                gold: player.goldCount,
+                seatIndex: player.seatIndex
+            });
+        }
         _playerList.push(player);
     };
 
