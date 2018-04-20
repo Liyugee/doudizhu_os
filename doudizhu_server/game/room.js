@@ -75,6 +75,12 @@ const Room = function (spec,player) {
             }
         }
     };
+    
+    that.playerReady = function (player) {
+        for (let i = 0; i < _playerList.length; i++) {
+            _playerList[i].sendPlayerReady(player.accountID);
+        }
+    };
 
 
     Object.defineProperty(that,"bottom",{

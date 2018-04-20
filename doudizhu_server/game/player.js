@@ -78,6 +78,11 @@ const Player = function (spec,socket,cbIndex,gameController) {
                     });
                 }
                 break;
+            case "ready":
+                if (_room) {
+                    _room.playerReady(that);
+                }
+                break;
             default :
                 break;
         }
@@ -86,6 +91,11 @@ const Player = function (spec,socket,cbIndex,gameController) {
     //服务端发送玩家加入消息
     that.sendPlayerJoinRoom = function (data) {
         notify("player_join_room",data,null);
+    };
+
+    //服务端发送玩家准备消息
+    that.sendPlayerReady = function (data) {
+        notify("player_ready",data,null);
     };
 
     return that;

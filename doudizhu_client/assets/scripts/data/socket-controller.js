@@ -61,12 +61,24 @@ const SocketController = function () {
         request("join_room",data,cb)
     };
 
+    //发送进入房间消息并接收回调
     that.requestEnterRoomScene = function (cb) {
         request("enter_room_scene",{},cb);
     };
 
+    //发送其他玩家准备消息
+    that.notifyReady = function () {
+        notify("ready",{},null);
+    };
+
+    //接收其他玩家加入房间信息
     that.onPlayerJoinRoom = function (cb) {
         _event.on("player_join_room",cb);
+    };
+
+    //接收其他玩家准备信息
+    that.onPlayerReady = function (cb) {
+        _event.on("player_ready",cb);
     };
 
     return that;

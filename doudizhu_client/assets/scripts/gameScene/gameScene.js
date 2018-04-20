@@ -13,8 +13,10 @@ cc.Class({
     },
 
     onLoad() {
+        this.playerNodeList = [];
         this.bottomLabel.string = "底：" + global.playerData.bottom;
         this.rateLabel.string = "倍数：" + global.playerData.rate;
+
         global.socket.requestEnterRoomScene((err, data) => {
             if (err) {
                 console.log("err: " + err)
@@ -31,8 +33,15 @@ cc.Class({
                 }
             }
         });
+
         global.socket.onPlayerJoinRoom((data)=>{
             this.addPlayerNode(data);
+        });
+
+        global.socket.onPlayerReady((data)=>{
+            for (let i = 0; i < this.playerNodeList.length; i++) {
+                this.playerNodeList[i].emit("player_ready",data);
+            }
         });
     },
 
@@ -64,6 +73,7 @@ cc.Class({
         playerNode.parent = this.node;
         playerNode.getComponent("playerNode").initWithData(data);
         playerNode.position = this.playerList[data.seatIndex];
+        this.playerNodeList.push(playerNode);
     }
 
 });
