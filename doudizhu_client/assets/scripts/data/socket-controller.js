@@ -1,10 +1,12 @@
 // import defines from './../defines';
+import EventListener from "./../utility/event-listener";
 
 const SocketController = function () {
     let that = {};
     let _socket = io(defines.serverUrl);
     let _callBackMap = {};
     let _callBackIndex = 0;
+    let _event = EventListener({});     //事件收发
 
     that.init = function () {
 
@@ -16,6 +18,9 @@ const SocketController = function () {
 
     _socket.on("notify",(data)=>{
         console.log("notify: " + JSON.stringify(data));
+        // notify: {"type":"login","data":{"goldCount":100},"callBackIndex":1}
+        // notify: {"type":"create_room","data":{"data":"229540"},"callBackIndex":2}
+        // notify: {"type":"join_room","data":{"data":{"bottom":10,"rate":2}},"callBackIndex":3}
         let callBackIndex = data.callBackIndex;
         if (_callBackMap.hasOwnProperty(callBackIndex)) {
             let cb = _callBackMap[callBackIndex];
@@ -24,6 +29,9 @@ const SocketController = function () {
             } else {
                 cb(null,data.data); //null为占位符，没有err时填null
             }
+        } else {
+            let type = data.type;
+            _event.fire(type,data.data);
         }
     });
 
@@ -51,6 +59,26 @@ const SocketController = function () {
     //发送加入房间信息并接收回调
     that.requestJoinRoom = function (data,cb) {
         request("join_room",data,cb)
+    };
+
+    //发送进入房间消息并接收回调
+    that.requestEnterRoomScene = function (cb) {
+        request("enter_room_scene",{},cb);
+    };
+
+    //发送其他玩家准备消息
+    that.notifyReady = function () {
+        notify("ready",{},null);
+    };
+
+    //接收其他玩家加入房间信息
+    that.onPlayerJoinRoom = function (cb) {
+        _event.on("player_join_room",cb);
+    };
+
+    //接收其他玩家准备信息
+    that.onPlayerReady = function (cb) {
+        _event.on("player_ready",cb);
     };
 
     return that;

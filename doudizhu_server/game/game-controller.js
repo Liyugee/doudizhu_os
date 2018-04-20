@@ -32,13 +32,15 @@ exports.createRoom = function (data,player,cb) {
 
 //加入房间接口
 exports.joinRoom = function (data,player,cb) {
-    console.log("roomID: " + JSON.stringify(data));
     for (let i = 0; i < _roomList.length; i++) {
         if(_roomList[i].roomID === data) {
             let room = _roomList[i];
             room.joinPlayer(player);
             if (cb) {
-                cb(null,{bottom: room.bottom, rate: room.rate});
+                cb(null,{
+                    room: room,
+                    data: {bottom: room.bottom, rate: room.rate}
+                });
             }
             return;
         }

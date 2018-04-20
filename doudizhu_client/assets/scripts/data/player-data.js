@@ -9,11 +9,13 @@ const getRandomStr = function (count) {
 
 let PlayerData = function () {
     let that = {};
-    that.uniqueID = "100000";
+    that.uniqueID = "1" + getRandomStr(6);
+    // that.uniqueID = "100000";
     that.accountID = "2" + getRandomStr(6);
     that.nickName = "小明" + getRandomStr(2);
     that.avatarUrl = "http://k1.jsqq.net/uploads/allimg/1610/14230K534-2.jpg";
     that.goldCount = 0;
+
 
     //微信登录成功返回uniqueID
     that.wxLoginSuccess = function (data) {
