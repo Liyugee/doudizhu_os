@@ -9,13 +9,17 @@ cc.Class({
         goldLabel: cc.Label
     },
 
-    // LIFE-CYCLE CALLBACKS:
-
-    // onLoad () {},
-
-    start () {
-
-    },
-
-    // update (dt) {},
+    initWithData: function (data) {
+        // enter room scene: {"seatIndex":0,"playerData":[{"nickName":"小明72","accountID":"2933146","avatarUrl":"http://k1.jsqq.net/uploads/allimg/1610/14230K534-2.jpg","gold":100}]}
+        this.idLabel.string = "ID:" + data.accountID;
+        this.nickNameLabel.string = data.nickName;
+        this.goldLabel.string = data.gold;
+        cc.loader.load({url: data.avatarUrl, type: 'jpg'}, (err, tex)=> {
+            cc.log('Should load a texture from RESTful API by specify the type: ' + (tex instanceof cc.Texture2D));
+            let oldWidth = this.headImage.node.width;
+            this.headImage.spriteFrame = new cc.SpriteFrame(tex);
+            let newWidth = this.headImage.node.width;
+            this.headImage.node.scale = oldWidth / newWidth;
+        });
+    }
 });

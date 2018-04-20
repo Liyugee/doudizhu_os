@@ -17,11 +17,34 @@ const Room = function (spec,player) {
     let _rate = config.rate;
     that.gold = 100;
     let _houseManager = player;
+    let _playerList = [];
+    
     that.joinPlayer = function (player) {
+        _playerList.push(player);
     };
 
-    //用于外部获取本地变量（如_bottom）
-    Object.defineProperty(that, "bottom",{
+    that.playerEnterRoomScene = function (player,cb) {
+        let playerData = [];
+        for (let i = 0; i < _playerList.length; i++) {
+            playerData.push({
+                nickName: _playerList[i].nickName,
+                accountID: _playerList[i].accountID,
+                avatarUrl: _playerList[i].avatarUrl,
+                gold: _playerList[i].goldCount,
+                seatIndex: _playerList[i].seatIndex
+            });
+        }
+        let index = 0;  //测试座位号
+        if (cb) {
+            cb({
+                seatIndex: index,
+                playerData: playerData
+            });
+        }
+    };
+
+
+    Object.defineProperty(that,"bottom",{
         get () {
             return _bottom;
         }
@@ -29,6 +52,7 @@ const Room = function (spec,player) {
         //     _bottom = val;
         // }
     });
+
     Object.defineProperty(that,"rate",{
         get () {
             return _rate;

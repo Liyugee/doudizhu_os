@@ -24,7 +24,8 @@ cc.Class({
                     } else {
                         // {"data":{"bottom":10,"rate":2}}
                         console.log("join room ID: " + JSON.stringify(data));
-                         global.playerData.bottom = data.data.bottom;
+                        // join room ID: {"data":{"rate":2}}
+                        global.playerData.bottom = data.data.bottom;
                          global.playerData.rate = data.data.rate;
                          cc.director.loadScene("gameScene");
                     }

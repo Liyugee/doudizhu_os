@@ -11,20 +11,24 @@ const Player = function (spec,socket,cbIndex,gameController) {
     let that = {};
     let _socket = socket;
     console.log("create new player: " + JSON.stringify(spec));
+    // create new player: {"unique_id":"100000","account_id":"2933146","nick_name":"小明72","gold_count":100,"avatar_url":"http://k1.jsqq.net/uploads/allimg/1610/14230K534-2.jpg"}
+    that.goldCount = spec.gold_count;
     that.uniqueID = spec.unique_id;
     that.accountID = spec.account_id;
     that.nickName = spec.nick_name;
-    that.goldCount = spec.gold_count;
     that.avatarUrl = spec.avatar_url;
+    that.seatIndex = 0;
+    let _room = undefined;
+
 
     const notify = function (type,data,callBackIndex) {
-        console.log("data: " + JSON.stringify(data));
         _socket.emit("notify",{
             type: type,
             data: data,
             callBackIndex: callBackIndex
         });
         console.log("callBackIndex: " + callBackIndex);
+        // callBackIndex: 1
     };
 
     notify("login",{
@@ -42,7 +46,8 @@ const Player = function (spec,socket,cbIndex,gameController) {
                         console.log("err: " + err);
                         notify("create_room",{err:err},callBackIndex);
                     } else {
-                        console.log("data: " + JSON.stringify(data));
+                        console.log("create room ID: " + JSON.stringify(data));
+                        // data: {"create room ID: ":"023612"}
                         notify("create_room",{data: data},callBackIndex);
                     }
                     console.log("create room success");
@@ -50,13 +55,23 @@ const Player = function (spec,socket,cbIndex,gameController) {
                 break;
             case "join_room" :
                 console.log("join room data:  " + JSON.stringify(notifyData.data));
+                // join room data:  "023612"
                 gameController.joinRoom(notifyData.data,that,(err,data)=>{
                     if (err) {
                         notify("join_room",{err: err},callBackIndex);
                     } else {
-                        notify("join_room",{data: data},callBackIndex);
+                        _room = data.room;
+                        notify("join_room",{data: data.data},callBackIndex);
                     }
                 });
+                break;
+            case "enter_room_scene" :
+                if (_room) {
+                    _room.playerEnterRoomScene(that,(data)=>{
+                        that.seatIndex = data.seatIndex;
+                        notify("enter_room_scene",data,callBackIndex);
+                    });
+                }
                 break;
             default :
                 break;

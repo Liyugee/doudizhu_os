@@ -53,6 +53,10 @@ const SocketController = function () {
         request("join_room",data,cb)
     };
 
+    that.requestEnterRoomScene = function (cb) {
+        request("enter_room_scene",{},cb);
+    };
+
     return that;
 };
 export default SocketController;
