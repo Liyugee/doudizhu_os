@@ -1,4 +1,11 @@
 const defines = require("./../defines");
+const CardManager = require("./card-manager");
+const RoomState = {
+    Invailed: -1,
+    WaitingReady: 1,
+    StartGame: 2,
+    PushCard: 3
+};
 
 //生成随机count位字符串
 const getRandomStr = function (count) {
@@ -41,6 +48,44 @@ const Room = function (spec,player) {
     that.gold = 100;
     let _houseManager = player;
     let _playerList = [];
+    let _state = RoomState.Invailed;
+    let _cardManager = CardManager();
+    // let cards = _cardManager.getThreeCards();
+    //
+    // for (let i = 0; i < cards.length; i++) {
+    //     for (let j = 0; j < cards[i].length; j++) {
+    //         let card = cards[i][j];
+    //         console.log(i + " value: " + card.value + " shape: " + card.shape + " king: " + card.king);
+    //     }
+    // }
+
+    const setState = function (state) {
+        //当前状态与前一个状态相同则不做操作返回
+        if (state === _state) {
+            return;
+        }
+        switch (state) {
+            case RoomState.WaitingReady:
+                break;
+            case RoomState.StartGame:
+                for (let i = 0; i < _playerList.length; i++) {
+                    _playerList[i].sendGameStart();
+                }
+                setState(RoomState.PushCard);
+                break;
+            case RoomState.PushCard:
+                console.log("push card");
+                let threeCards = _cardManager.getThreeCards();
+                for (let i = 0; i < _playerList.length; i++) {
+                    _playerList[i].sendPushCard(threeCards[i]);
+                }
+                break;
+            default:
+                break;
+        }
+        _state = state;
+    };
+    setState(RoomState.WaitingReady);
 
     
     that.joinPlayer = function (player) {
@@ -88,11 +133,11 @@ const Room = function (spec,player) {
         }
     };
 
-    that.gameStart = function () {
-        for (let i = 0; i < _playerList.length; i++) {
-            _playerList[i].sendGameStart();
-        }
-    };
+    // that.gameStart = function () {
+    //     for (let i = 0; i < _playerList.length; i++) {
+    //         _playerList[i].sendGameStart();
+    //     }
+    // };
 
     that.playerOffline = function (player) {
         for (let i = 0; i < _playerList.length; i++) {
@@ -131,7 +176,8 @@ const Room = function (spec,player) {
         if (cb) {
             cb(null,"success");
         }
-        that.gameStart();
+        // that.gameStart();
+        setState(RoomState.StartGame);
     };
 
     //外部获取私有变量的方法

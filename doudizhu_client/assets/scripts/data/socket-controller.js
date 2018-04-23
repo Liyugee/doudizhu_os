@@ -93,6 +93,10 @@ const SocketController = function () {
         _event.on("change_house_manager",cb);
     };
 
+    that.onPushCard = function (cb) {
+        _event.on("push_card",cb);
+    };
+
     return that;
 };
 export default SocketController;
