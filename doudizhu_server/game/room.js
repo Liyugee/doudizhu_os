@@ -9,6 +9,7 @@ const getRandomStr = function (count) {
     return str;
 };
 
+//获取玩家座位号
 const getSeatIndex = function (playerList) {
     let z = 0;
     if (playerList.length === 0) {
@@ -24,6 +25,13 @@ const getSeatIndex = function (playerList) {
     return z;
 };
 
+/**
+ * Room类
+ * @param spec  data
+ * @param player    房主
+ * @returns {*}     that
+ * @constructor
+ */
 const Room = function (spec,player) {
     let that = {};
     that.roomID = getRandomStr(6);
@@ -33,6 +41,7 @@ const Room = function (spec,player) {
     that.gold = 100;
     let _houseManager = player;
     let _playerList = [];
+
     
     that.joinPlayer = function (player) {
         player.seatIndex = getSeatIndex(_playerList);
@@ -63,8 +72,22 @@ const Room = function (spec,player) {
             cb({
                 seatIndex: player.seatIndex,
                 playerData: playerData,
-                roomID: that.roomID
+                roomID: that.roomID,
+                houseManagerID: _houseManager.accountID
             });
+        }
+    };
+
+    that.changeHouseManager = function () {
+        if (_playerList.length === 0) {
+            return;
+        }
+        _houseManager = _playerList[0];
+    };
+
+    that.gameStart = function () {
+        for (let i = 0; i < _playerList.length; i++) {
+            _playerList[i].sendGameStart();
         }
     };
 
@@ -72,6 +95,9 @@ const Room = function (spec,player) {
         for (let i = 0; i < _playerList.length; i++) {
             if (_playerList[i].accountID === player.accountID) {
                 _playerList.splice(i,1);
+                if (player.accountID === _houseManager.accountID) {
+                    that.changeHouseManager();
+                }
             }
         }
     };
@@ -82,7 +108,30 @@ const Room = function (spec,player) {
         }
     };
 
+    that.houseManagerStartGame = function (player,cb) {
+        if (_playerList.length !== defines.roomFullPlayerCount) {
+            if (cb) {
+                cb("人数不足，不能开始游戏");
+            }
+            return;
+        }
+        for (let i = 0; i < _playerList.length; i++) {
+            if (_playerList[i].accountID !== _houseManager.accountID) {
+                if (_playerList[i].isReady === false) {
+                    if (cb) {
+                        cb("有玩家未准备，不能开始游戏");
+                    }
+                    return;
+                }
+            }
+        }
+        if (cb) {
+            cb(null,"success");
+        }
+        that.gameStart();
+    };
 
+    //外部获取私有变量的方法
     Object.defineProperty(that,"bottom",{
         get () {
             return _bottom;

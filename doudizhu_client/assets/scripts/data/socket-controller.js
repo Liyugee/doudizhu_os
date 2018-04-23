@@ -66,6 +66,10 @@ const SocketController = function () {
         request("enter_room_scene",{},cb);
     };
 
+    that.requestStartGame = function (cb) {
+        request("start_game",{},cb);
+    };
+
     //发送其他玩家准备消息
     that.notifyReady = function () {
         notify("ready",{},null);
@@ -79,6 +83,10 @@ const SocketController = function () {
     //接收其他玩家准备信息
     that.onPlayerReady = function (cb) {
         _event.on("player_ready",cb);
+    };
+
+    that.onGameStart = function (cb) {
+        _event.on("game_start",cb);
     };
 
     return that;

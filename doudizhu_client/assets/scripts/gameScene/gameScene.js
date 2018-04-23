@@ -28,10 +28,12 @@ cc.Class({
                 let playerData = data.playerData;
                 let roomID = data.roomID;
                 this.roomIDLabel.string = "房间号：" + roomID;
+                global.playerData.houseManagerID = data.houseManagerID;
                 for (let i = 0; i < playerData.length; i++) {
                     this.addPlayerNode(playerData[i]);
                 }
             }
+            this.node.emit("init");
         });
 
         global.socket.onPlayerJoinRoom((data)=>{
