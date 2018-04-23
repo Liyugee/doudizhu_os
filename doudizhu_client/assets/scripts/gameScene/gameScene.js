@@ -28,10 +28,12 @@ cc.Class({
                 let playerData = data.playerData;
                 let roomID = data.roomID;
                 this.roomIDLabel.string = "房间号：" + roomID;
+                global.playerData.houseManagerID = data.houseManagerID;
                 for (let i = 0; i < playerData.length; i++) {
                     this.addPlayerNode(playerData[i]);
                 }
             }
+            this.node.emit("init");
         });
 
         global.socket.onPlayerJoinRoom((data)=>{
@@ -41,6 +43,12 @@ cc.Class({
         global.socket.onPlayerReady((data)=>{
             for (let i = 0; i < this.playerNodeList.length; i++) {
                 this.playerNodeList[i].emit("player_ready",data);
+            }
+        });
+
+        global.socket.onGameStart(()=>{
+            for (let i = 0; i < this.playerNodeList.length; i++) {
+                this.playerNodeList[i].emit("game_start");
             }
         });
     },

@@ -19,6 +19,8 @@ const Player = function (spec,socket,cbIndex,gameController) {
     that.avatarUrl = spec.avatar_url;
     that.seatIndex = 0;
     let _room = undefined;
+    that.isReady = false;
+    that.cards = [];
 
 
     const notify = function (type,data,callBackIndex) {
@@ -37,7 +39,9 @@ const Player = function (spec,socket,cbIndex,gameController) {
 
     _socket.on("disconnect",()=>{
         console.log("player is offline");
-        _room.playerOffline(that);
+        if (_room) {
+            _room.playerOffline(that);
+        }
     });
 
     _socket.on("notify",(notifyData)=>{
@@ -79,8 +83,20 @@ const Player = function (spec,socket,cbIndex,gameController) {
                 }
                 break;
             case "ready":
+                that.isReady = true;
                 if (_room) {
                     _room.playerReady(that);
+                }
+                break;
+            case "start_game":
+                if (_room) {
+                    _room.houseManagerStartGame(that,(err,data)=>{
+                        if (err) {
+                            notify("start_game",{err: err},callBackIndex);
+                        } else {
+                            notify("start_game",{data: data},callBackIndex);
+                        }
+                    });
                 }
                 break;
             default :
@@ -96,6 +112,22 @@ const Player = function (spec,socket,cbIndex,gameController) {
     //服务端发送玩家准备消息
     that.sendPlayerReady = function (data) {
         notify("player_ready",data,null);
+    };
+
+    //服务端发送游戏开始消息
+    that.sendGameStart = function () {
+        notify("game_start",{},null);
+    };
+
+    //服务端发送改变房主消息
+    that.sendChangeHouseManager = function (data) {
+        notify("change_house_manager",data,null);
+    };
+
+    //服务端发送发牌消息
+    that.sendPushCard = function (cards) {
+        that.cards = cards;
+        notify("push_card",{},null);
     };
 
     return that;
