@@ -22,6 +22,13 @@ cc.Class({
         global.socket.onGameStart(()=>{
             this.gameBeforeUI.active = false;
         });
+        global.socket.onChangeHouseManager((data)=>{
+            global.playerData.houseManagerID = data;
+            if (global.playerData.accountID === data) {
+                this.readyButton.active = false;
+                this.gameStartButton.active = true;
+            }
+        });
     },
 
     onButtonClick: function (event,customeData) {

@@ -116,6 +116,10 @@ const Player = function (spec,socket,cbIndex,gameController) {
         notify("game_start",{},null);
     };
 
+    that.sendChangeHouseManager = function (data) {
+        notify("change_house_manager",data,null);
+    };
+
     return that;
 };
 

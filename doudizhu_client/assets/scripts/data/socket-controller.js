@@ -88,6 +88,10 @@ const SocketController = function () {
     that.onGameStart = function (cb) {
         _event.on("game_start",cb);
     };
+    
+    that.onChangeHouseManager = function (cb) {
+        _event.on("change_house_manager",cb);
+    };
 
     return that;
 };

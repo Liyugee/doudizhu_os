@@ -78,11 +78,14 @@ const Room = function (spec,player) {
         }
     };
 
-    that.changeHouseManager = function () {
+    const changeHouseManager = function () {
         if (_playerList.length === 0) {
             return;
         }
         _houseManager = _playerList[0];
+        for (let i = 0; i < _playerList.length; i++) {
+            _playerList[i].sendChangeHouseManager(_houseManager.accountID);
+        }
     };
 
     that.gameStart = function () {
@@ -96,7 +99,7 @@ const Room = function (spec,player) {
             if (_playerList[i].accountID === player.accountID) {
                 _playerList.splice(i,1);
                 if (player.accountID === _houseManager.accountID) {
-                    that.changeHouseManager();
+                    changeHouseManager();
                 }
             }
         }
