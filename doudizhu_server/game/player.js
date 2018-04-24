@@ -127,7 +127,7 @@ const Player = function (spec,socket,cbIndex,gameController) {
     //服务端发送发牌消息
     that.sendPushCard = function (cards) {
         that.cards = cards;
-        notify("push_card",{},null);
+        notify("push_card",{cards},null);
     };
 
     return that;

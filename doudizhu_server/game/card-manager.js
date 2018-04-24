@@ -31,31 +31,35 @@ const Kings = {
 const CardManager = function () {
     let that = {};
     let _cardList = [];
-    for (let i in CardValue) {
-        for (let j in CardShape) {
-            _cardList.push(Card(CardValue[i],CardShape[j],0));
-        }
-    }
-    _cardList.push(Card(0,0,Kings.k));
-    _cardList.push(Card(0,0,Kings.K));
 
-    // for (let i = 0; i < _cardList.length; i++) {
-    //     console.log("value: " + _cardList[i].value + " shape: " + _cardList[i].shape + "king: " + _cardList[i].king);
-    // }
-
-    //洗牌
-    const referCard = function () {
-        for (let i = 0; i < _cardList.length; i++) {
-            let random = Math.floor(Math.random() * _cardList.length);
-            let temp = _cardList[random];
-            _cardList[random] = _cardList[i];
-            _cardList[i] = temp;
+    // 创建一副牌，洗牌
+    const createCards = function () {
+        let cardList = [];
+        for (let i in CardValue) {
+            for (let j in CardShape) {
+                let card = Card(CardValue[i],CardShape[j],0);
+                card.id = cardList.length;
+                cardList.push(card);
+            }
         }
-        for (let i = 0; i < _cardList.length; i++) {
-            console.log("value: " + _cardList[i].value + " shape: " + _cardList[i].shape + " king: " + _cardList[i].king);
+        for (let i in Kings) {
+            let card = Card(undefined,undefined,Kings[i]);
+            card.id = cardList.length;
+            cardList.push(card);
         }
+        for (let i = 0; i < cardList.length; i++) {
+            let random = Math.floor(Math.random() * cardList.length);
+            let temp = cardList[random];
+            cardList[random] = cardList[i];
+            cardList[i] = temp;
+        }
+        // for (let i = 0; i < cardList.length; i++) {
+        //     console.log("card id: " + cardList[i].id);
+        // }
+        return cardList;
     };
-    referCard();
+
+    _cardList = createCards();
 
     //发牌，3个人各分17张，每分一张从排队减一张，剩3张底牌
     that.getThreeCards = function () {
