@@ -1,8 +1,12 @@
 const Card = function (value,shape,king) {
     let that = {};
-    that.value = value;
-    that.shape = shape;
-    if (king) {
+    if (value) {
+        that.value = value;
+    }
+    if (shape) {
+        that.shape = shape;
+    }
+    if (!!king) {
         that.king = king;
     }
 

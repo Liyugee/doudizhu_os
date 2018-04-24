@@ -50,14 +50,6 @@ const Room = function (spec,player) {
     let _playerList = [];
     let _state = RoomState.Invailed;
     let _cardManager = CardManager();
-    // let cards = _cardManager.getThreeCards();
-    //
-    // for (let i = 0; i < cards.length; i++) {
-    //     for (let j = 0; j < cards[i].length; j++) {
-    //         let card = cards[i][j];
-    //         console.log(i + " value: " + card.value + " shape: " + card.shape + " king: " + card.king);
-    //     }
-    // }
 
     const setState = function (state) {
         //当前状态与前一个状态相同则不做操作返回
@@ -133,12 +125,6 @@ const Room = function (spec,player) {
         }
     };
 
-    // that.gameStart = function () {
-    //     for (let i = 0; i < _playerList.length; i++) {
-    //         _playerList[i].sendGameStart();
-    //     }
-    // };
-
     that.playerOffline = function (player) {
         for (let i = 0; i < _playerList.length; i++) {
             if (_playerList[i].accountID === player.accountID) {
@@ -176,7 +162,6 @@ const Room = function (spec,player) {
         if (cb) {
             cb(null,"success");
         }
-        // that.gameStart();
         setState(RoomState.StartGame);
     };
 
