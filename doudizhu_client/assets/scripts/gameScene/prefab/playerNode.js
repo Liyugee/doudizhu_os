@@ -1,4 +1,6 @@
 
+import global from "../../global";
+
 cc.Class({
     extends: cc.Component,
 
@@ -8,23 +10,32 @@ cc.Class({
         nickNameLabel: cc.Label,
         goldLabel: cc.Label,
         readyIcon: cc.Node,
-        offlineIcon: cc.Node
+        offlineIcon: cc.Node,
+        cardsNode: cc.Node,
+        cardPrefab: cc.Prefab
     },
 
     onLoad () {
+        this.cardList = [];
         this.readyIcon.active = false;
         this.offlineIcon.active = false;
         this.node.on("game_start",()=>{
             this.readyIcon.active = false;
         });
+        this.node.on("push_card",()=>{
+            if (this.accountID !== global.playerData.accountID) {
+                this.pushCard();
+            }
+        });
     },
 
-    initWithData: function (data) {
+    initWithData: function (data,index) {
         // enter room scene: {"seatIndex":0,"playerData":[{"nickName":"小明72","accountID":"2933146","avatarUrl":"http://k1.jsqq.net/uploads/allimg/1610/14230K534-2.jpg","gold":100}]}
         this.accountID = data.accountID;
         this.idLabel.string = "ID:" + data.accountID;
         this.nickNameLabel.string = data.nickName;
         this.goldLabel.string = data.gold;
+        this.index = index;
         cc.loader.load({url: data.avatarUrl, type: 'jpg'}, (err, tex)=> {
             cc.log('Should load a texture from RESTful API by specify the type: ' + (tex instanceof cc.Texture2D));
             let oldWidth = this.headImage.node.width;
@@ -40,7 +51,23 @@ cc.Class({
             if (detail === this.accountID) {
                 this.readyIcon.active = true;
             }
-
         });
+
+        if (index === 1) {
+            this.cardsNode.x *= -1;
+        }
+    }
+    ,
+    
+    pushCard: function () {
+        this.cardsNode.active = true;
+        for (let i = 0; i < 17; i++) {
+            let card = cc.instantiate(this.cardPrefab);
+            card.parent = this.cardsNode;
+            card.scale = 0.4;
+            let height = card.height;
+            card.y = (17 - 1) * 0.5 * height * 0.3 * 0.4 - height * 0.3 * 0.4 * i;
+            this.cardList.push(card);
+        }
     }
 });
