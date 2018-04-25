@@ -42,7 +42,7 @@ const getSeatIndex = function (playerList) {
  * @returns {*}     that
  * @constructor
  */
-const Room = function (spec,player) {
+const Room = function (spec, player) {
     let that = {};
     that.roomID = getRandomStr(6);
     let config = defines.createRoomConfig[spec.rate];
@@ -55,6 +55,7 @@ const Room = function (spec,player) {
     let _cardManager = CardManager();
     let _losePlayer = undefined;    //上一局输的玩家
     let _robMasterPlayerList = [];
+    let _master = undefined;
 
     const setState = function (state) {
         //当前状态与前一个状态相同则不做操作返回
@@ -94,7 +95,7 @@ const Room = function (spec,player) {
     };
     setState(RoomState.WaitingReady);
 
-    
+
     that.joinPlayer = function (player) {
         player.seatIndex = getSeatIndex(_playerList);
         for (let i = 0; i < _playerList.length; i++) {
@@ -109,7 +110,7 @@ const Room = function (spec,player) {
         _playerList.push(player);
     };
 
-    that.playerEnterRoomScene = function (player,cb) {
+    that.playerEnterRoomScene = function (player, cb) {
         let playerData = [];
         for (let i = 0; i < _playerList.length; i++) {
             playerData.push({
@@ -131,14 +132,15 @@ const Room = function (spec,player) {
     };
 
     //广播玩家抢地主状态，轮番抢地主
-    that.playerRobMasterState = function (player,value) {
+    that.playerRobMasterState = function (player, value) {
         if (value === "ok") {
             console.log("rob master ok");
+            _master = player;
         } else if (value === "no_ok") {
             console.log("rob master no ok");
         }
         for (let i = 0; i < _playerList.length; i++) {
-            _playerList[i].sendPlayerRobMasterState(player.accountID,value);
+            _playerList[i].sendPlayerRobMasterState(player.accountID, value);
         }
         turnPlayerRobMaster();
     };
@@ -157,32 +159,44 @@ const Room = function (spec,player) {
     const turnPlayerRobMaster = function () {
         if (_robMasterPlayerList.length === 0) {
             console.log("抢地主结束");
+            changeMaster();
             return;
         }
         let player = _robMasterPlayerList.pop();
+        if (_robMasterPlayerList.length === 0 && _master === undefined) {
+            _master = player;
+            changeMaster();
+            return;
+        }
         for (let i = 0; i < _playerList.length; i++) {
             _playerList[i].sendPlayerCanRobMaster(player.accountID);
+        }
+    };
+
+    const changeMaster = function () {
+        for (let i = 0; i < _playerList.length; i++) {
+            _playerList[i].sendChangeMaster(_master);
         }
     };
 
     that.playerOffline = function (player) {
         for (let i = 0; i < _playerList.length; i++) {
             if (_playerList[i].accountID === player.accountID) {
-                _playerList.splice(i,1);
+                _playerList.splice(i, 1);
                 if (player.accountID === _houseManager.accountID) {
                     changeHouseManager();
                 }
             }
         }
     };
-    
+
     that.playerReady = function (player) {
         for (let i = 0; i < _playerList.length; i++) {
             _playerList[i].sendPlayerReady(player.accountID);
         }
     };
 
-    that.houseManagerStartGame = function (player,cb) {
+    that.houseManagerStartGame = function (player, cb) {
         if (_playerList.length !== defines.roomFullPlayerCount) {
             if (cb) {
                 cb("人数不足，不能开始游戏");
@@ -200,16 +214,15 @@ const Room = function (spec,player) {
             }
         }
         if (cb) {
-            cb(null,"success");
+            cb(null, "success");
         }
         setState(RoomState.StartGame);
     };
 
 
-
     //外部获取私有变量的方法
-    Object.defineProperty(that,"bottom",{
-        get () {
+    Object.defineProperty(that, "bottom", {
+        get() {
             return _bottom;
         }
         // set (val) {
@@ -217,8 +230,8 @@ const Room = function (spec,player) {
         // }
     });
 
-    Object.defineProperty(that,"rate",{
-        get () {
+    Object.defineProperty(that, "rate", {
+        get() {
             return _rate;
         }
     });

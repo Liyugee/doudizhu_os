@@ -18,7 +18,8 @@ cc.Class({
         timeLabel: cc.Label,
         robIconSprite: cc.Sprite,
         robIcon: cc.SpriteFrame,
-        noRobIcon: cc.SpriteFrame
+        noRobIcon: cc.SpriteFrame,
+        masterIcon: cc.Node
     },
 
     onLoad () {
@@ -59,6 +60,16 @@ cc.Class({
                     default:
                         break;
                 }
+            }
+        });
+        this.node.on("change_master",(event)=>{
+            let detail = event.detail;
+            console.log("=============change master detail: " + JSON.stringify(detail));
+            this.robIconSprite.node.active = false;
+            if (detail === this.accountID) {
+                this.masterIcon.active = true;
+                this.masterIcon.scale = 0.6;
+                this.masterIcon.runAction(cc.scaleTo(0.3,1).easing(cc.easeBackOut()));
             }
         });
     },

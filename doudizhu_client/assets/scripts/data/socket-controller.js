@@ -109,6 +109,10 @@ const SocketController = function () {
         _event.on("player_rob_state",cb);
     };
 
+    that.onChangeMaster = function (cb) {
+        _event.on("change_master",cb);
+    };
+
     return that;
 };
 export default SocketController;

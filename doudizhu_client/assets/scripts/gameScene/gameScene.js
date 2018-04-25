@@ -35,34 +35,40 @@ cc.Class({
             }
             this.node.emit("init");
         });
-        global.socket.onPlayerJoinRoom((data)=>{
+        global.socket.onPlayerJoinRoom((data) => {
             this.addPlayerNode(data);
         });
-        global.socket.onPlayerReady((data)=>{
+        global.socket.onPlayerReady((data) => {
             for (let i = 0; i < this.playerNodeList.length; i++) {
-                this.playerNodeList[i].emit("player_ready",data);
+                this.playerNodeList[i].emit("player_ready", data);
             }
         });
-        global.socket.onGameStart(()=>{
+        global.socket.onGameStart(() => {
             for (let i = 0; i < this.playerNodeList.length; i++) {
                 this.playerNodeList[i].emit("game_start");
             }
         });
-        global.socket.onPushCard(()=>{
+        global.socket.onPushCard(() => {
             for (let i = 0; i < this.playerNodeList.length; i++) {
                 this.playerNodeList[i].emit("push_card");
             }
         });
-        global.socket.onCanRobMaster((data)=>{
+        global.socket.onCanRobMaster((data) => {
             for (let i = 0; i < this.playerNodeList.length; i++) {
-                this.playerNodeList[i].emit("can_rob_master",data);
+                this.playerNodeList[i].emit("can_rob_master", data);
             }
         });
-        global.socket.onPlayerRobMasterState((data)=>{
+        global.socket.onPlayerRobMasterState((data) => {
             for (let i = 0; i < this.playerNodeList.length; i++) {
-                this.playerNodeList[i].emit("rob_state",data);
+                this.playerNodeList[i].emit("rob_state", data);
             }
         });
+        global.socket.onChangeMaster((data) => {
+            console.log("on change master: " + data);
+            for (let i = 0; i < this.playerNodeList.length; i++) {
+                this.playerNodeList[i].emit("change_master", data);
+            }
+        })
     },
 
     initPlayerPos: function (seatIndex) {
@@ -91,7 +97,7 @@ cc.Class({
     addPlayerNode: function (data) {
         let playerNode = cc.instantiate(this.playerNodePrefab);
         playerNode.parent = this.node;
-        playerNode.getComponent("playerNode").initWithData(data,this.playerPosList[data.seatIndex]);
+        playerNode.getComponent("playerNode").initWithData(data, this.playerPosList[data.seatIndex]);
         playerNode.position = this.playerPosNode.children[this.playerPosList[data.seatIndex]].position;
         this.playerNodeList.push(playerNode);
     }
