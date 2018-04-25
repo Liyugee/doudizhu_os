@@ -66,7 +66,12 @@ cc.Class({
         global.socket.onChangeMaster((data) => {
             console.log("on change master: " + data);
             for (let i = 0; i < this.playerNodeList.length; i++) {
-                this.playerNodeList[i].emit("change_master", data);
+                // this.playerNodeList[i].emit("change_master", data);
+                let node = this.playerNodeList[i];
+                node.emit("change_master", data);
+                if (node.getComponent("playerNode").accountID === data) {
+                    this.node.emit("master_pos",node.position);
+                }
             }
         })
     },

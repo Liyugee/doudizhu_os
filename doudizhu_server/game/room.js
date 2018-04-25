@@ -7,7 +7,8 @@ const RoomState = {
     WaitingReady: 1,
     StartGame: 2,
     PushCard: 3,
-    RobMaster: 4
+    RobMaster: 4,
+    ShowBottomCard: 5
 };
 
 //生成随机count位字符串
@@ -56,6 +57,7 @@ const Room = function (spec, player) {
     let _losePlayer = undefined;    //上一局输的玩家
     let _robMasterPlayerList = [];
     let _master = undefined;
+    let _threeCardsList = [];
 
     const setState = function (state) {
         //当前状态与前一个状态相同则不做操作返回
@@ -73,9 +75,9 @@ const Room = function (spec, player) {
                 break;
             case RoomState.PushCard:
                 console.log("push card");
-                let threeCards = _cardManager.getThreeCards();
+                _threeCardsList = _cardManager.getThreeCards();
                 for (let i = 0; i < _playerList.length; i++) {
-                    _playerList[i].sendPushCard(threeCards[i]);
+                    _playerList[i].sendPushCard(_threeCardsList[i]);
                 }
                 setState(RoomState.RobMaster);
                 break;
@@ -87,6 +89,11 @@ const Room = function (spec, player) {
                     }
                 }
                 turnPlayerRobMaster();
+                break;
+            case RoomState.ShowBottomCard:
+                for (let i = 0; i < _playerList.length; i++) {
+                    _playerList[i].sendShowBottomCard(_threeCardsList[3]);
+                }
                 break;
             default:
                 break;
@@ -177,6 +184,7 @@ const Room = function (spec, player) {
         for (let i = 0; i < _playerList.length; i++) {
             _playerList[i].sendChangeMaster(_master);
         }
+        setState(RoomState.ShowBottomCard);
     };
 
     that.playerOffline = function (player) {

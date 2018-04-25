@@ -113,6 +113,10 @@ const SocketController = function () {
         _event.on("change_master",cb);
     };
 
+    that.onShowBottomCard = function (cb) {
+        _event.on("show_bottom_card",cb);
+    };
+
     return that;
 };
 export default SocketController;

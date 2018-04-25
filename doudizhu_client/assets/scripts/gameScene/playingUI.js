@@ -10,6 +10,7 @@ cc.Class({
     },
 
     onLoad () {
+        this.bottomCards = [];
         global.socket.onPushCard((data)=>{
             console.log("push card data: " + JSON.stringify(data));
             this.pushCard(data);
@@ -21,6 +22,34 @@ cc.Class({
                 this.robUI.active = true;
             }
         });
+        global.socket.onShowBottomCard((data)=>{
+            console.log("show bottom cards: " + JSON.stringify(data));
+            console.log("data.length: " + data.length);
+            for (let i = 0; i < data.length; i++) {
+                let card = this.bottomCards[i];
+                card.getComponent('card').showCard(data[i]);
+            }
+            this.node.runAction(cc.sequence(cc.delayTime(2),cc.callFunc(()=>{
+                for (let i = 0; i < this.bottomCards.length; i++) {
+                    let card = this.bottomCards[i];
+                    this.runCardAction(card,this.masterPos);
+                }
+                this.bottomCards = [];
+            })));
+        });
+        this.node.on("master_pos",(event)=>{
+            let detail = event.detail;
+            this.masterPos = detail;
+        });
+    },
+
+    runCardAction: function (card,pos) {
+        let moveAction = cc.moveTo(0.5,pos);
+        let scaleAction = cc.scaleTo(0.5,0.2);
+        card.runAction(moveAction);
+        card.runAction(cc.sequence(scaleAction, cc.callFunc(()=>{
+            card.destroy();
+        })));
     },
     
     pushCard: function (data) {
@@ -53,12 +82,14 @@ cc.Class({
             }
         }
 
+        this.bottomCards = [];
         for (let i = 0; i < 3; i++) {
             let card = cc.instantiate(this.cardPrefab);
             card.parent = this.playingUI;
             card.scale = 0.8;
             card.x = (card.width * 0.8 + 20) * (3 - 1) * -0.5 + (card.width * 0.8 + 20) * i;
             card.y = 60;
+            this.bottomCards.push(card);
         }
     },
 

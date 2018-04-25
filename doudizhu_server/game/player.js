@@ -145,8 +145,13 @@ const Player = function (spec, socket, cbIndex, gameController) {
         notify("player_rob_state", {accountID: accountID, value: value}, null);
     };
 
+
     that.sendChangeMaster = function (player) {
         notify("change_master", player.accountID);
+    };
+
+    that.sendShowBottomCard = function (data) {
+        notify("show_bottom_card",data);
     };
 
     return that;
