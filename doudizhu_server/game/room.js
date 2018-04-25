@@ -1,10 +1,14 @@
 const defines = require("./../defines");
 const CardManager = require("./card-manager");
+
+//房间状态机
 const RoomState = {
     Invailed: -1,
     WaitingReady: 1,
     StartGame: 2,
-    PushCard: 3
+    PushCard: 3,
+    RobMaster: 4,
+    ShowBottomCard: 5
 };
 
 //生成随机count位字符串
@@ -34,12 +38,12 @@ const getSeatIndex = function (playerList) {
 
 /**
  * Room类
- * @param spec  data
+ * @param spec      data
  * @param player    房主
  * @returns {*}     that
  * @constructor
  */
-const Room = function (spec,player) {
+const Room = function (spec, player) {
     let that = {};
     that.roomID = getRandomStr(6);
     let config = defines.createRoomConfig[spec.rate];
@@ -50,6 +54,10 @@ const Room = function (spec,player) {
     let _playerList = [];
     let _state = RoomState.Invailed;
     let _cardManager = CardManager();
+    let _losePlayer = undefined;    //上一局输的玩家
+    let _robMasterPlayerList = [];
+    let _master = undefined;
+    let _threeCardsList = [];
 
     const setState = function (state) {
         //当前状态与前一个状态相同则不做操作返回
@@ -67,9 +75,24 @@ const Room = function (spec,player) {
                 break;
             case RoomState.PushCard:
                 console.log("push card");
-                let threeCards = _cardManager.getThreeCards();
+                _threeCardsList = _cardManager.getThreeCards();
                 for (let i = 0; i < _playerList.length; i++) {
-                    _playerList[i].sendPushCard(threeCards[i]);
+                    _playerList[i].sendPushCard(_threeCardsList[i]);
+                }
+                setState(RoomState.RobMaster);
+                break;
+            case RoomState.RobMaster:
+                _robMasterPlayerList = [];
+                if (_losePlayer === undefined) {
+                    for (let i = _playerList.length - 1; i >= 0; i--) {
+                        _robMasterPlayerList.push(_playerList[i]);
+                    }
+                }
+                turnPlayerRobMaster();
+                break;
+            case RoomState.ShowBottomCard:
+                for (let i = 0; i < _playerList.length; i++) {
+                    _playerList[i].sendShowBottomCard(_threeCardsList[3]);
                 }
                 break;
             default:
@@ -79,7 +102,7 @@ const Room = function (spec,player) {
     };
     setState(RoomState.WaitingReady);
 
-    
+
     that.joinPlayer = function (player) {
         player.seatIndex = getSeatIndex(_playerList);
         for (let i = 0; i < _playerList.length; i++) {
@@ -94,7 +117,7 @@ const Room = function (spec,player) {
         _playerList.push(player);
     };
 
-    that.playerEnterRoomScene = function (player,cb) {
+    that.playerEnterRoomScene = function (player, cb) {
         let playerData = [];
         for (let i = 0; i < _playerList.length; i++) {
             playerData.push({
@@ -115,6 +138,20 @@ const Room = function (spec,player) {
         }
     };
 
+    //广播玩家抢地主状态，轮番抢地主
+    that.playerRobMasterState = function (player, value) {
+        if (value === "ok") {
+            console.log("rob master ok");
+            _master = player;
+        } else if (value === "no_ok") {
+            console.log("rob master no ok");
+        }
+        for (let i = 0; i < _playerList.length; i++) {
+            _playerList[i].sendPlayerRobMasterState(player.accountID, value);
+        }
+        turnPlayerRobMaster();
+    };
+
     const changeHouseManager = function () {
         if (_playerList.length === 0) {
             return;
@@ -125,24 +162,49 @@ const Room = function (spec,player) {
         }
     };
 
+    //轮番抢地主
+    const turnPlayerRobMaster = function () {
+        if (_robMasterPlayerList.length === 0) {
+            console.log("抢地主结束");
+            changeMaster();
+            return;
+        }
+        let player = _robMasterPlayerList.pop();
+        if (_robMasterPlayerList.length === 0 && _master === undefined) {
+            _master = player;
+            changeMaster();
+            return;
+        }
+        for (let i = 0; i < _playerList.length; i++) {
+            _playerList[i].sendPlayerCanRobMaster(player.accountID);
+        }
+    };
+
+    const changeMaster = function () {
+        for (let i = 0; i < _playerList.length; i++) {
+            _playerList[i].sendChangeMaster(_master);
+        }
+        setState(RoomState.ShowBottomCard);
+    };
+
     that.playerOffline = function (player) {
         for (let i = 0; i < _playerList.length; i++) {
             if (_playerList[i].accountID === player.accountID) {
-                _playerList.splice(i,1);
+                _playerList.splice(i, 1);
                 if (player.accountID === _houseManager.accountID) {
                     changeHouseManager();
                 }
             }
         }
     };
-    
+
     that.playerReady = function (player) {
         for (let i = 0; i < _playerList.length; i++) {
             _playerList[i].sendPlayerReady(player.accountID);
         }
     };
 
-    that.houseManagerStartGame = function (player,cb) {
+    that.houseManagerStartGame = function (player, cb) {
         if (_playerList.length !== defines.roomFullPlayerCount) {
             if (cb) {
                 cb("人数不足，不能开始游戏");
@@ -160,14 +222,15 @@ const Room = function (spec,player) {
             }
         }
         if (cb) {
-            cb(null,"success");
+            cb(null, "success");
         }
         setState(RoomState.StartGame);
     };
 
+
     //外部获取私有变量的方法
-    Object.defineProperty(that,"bottom",{
-        get () {
+    Object.defineProperty(that, "bottom", {
+        get() {
             return _bottom;
         }
         // set (val) {
@@ -175,8 +238,8 @@ const Room = function (spec,player) {
         // }
     });
 
-    Object.defineProperty(that,"rate",{
-        get () {
+    Object.defineProperty(that, "rate", {
+        get() {
             return _rate;
         }
     });
