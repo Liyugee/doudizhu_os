@@ -12,7 +12,13 @@ cc.Class({
         readyIcon: cc.Node,
         offlineIcon: cc.Node,
         cardsNode: cc.Node,
-        cardPrefab: cc.Prefab
+        cardPrefab: cc.Prefab,
+        infoNode: cc.Node,
+        tipsLabel: cc.Label,
+        timeLabel: cc.Label,
+        robIconSprite: cc.Sprite,
+        robIcon: cc.SpriteFrame,
+        noRobIcon: cc.SpriteFrame
     },
 
     onLoad () {
@@ -25,6 +31,34 @@ cc.Class({
         this.node.on("push_card",()=>{
             if (this.accountID !== global.playerData.accountID) {
                 this.pushCard();
+            }
+        });
+        this.node.on("can_rob_master",(event)=>{
+            let detail = event.detail;
+            if (detail === this.accountID && detail !== global.playerData.accountID) {
+                this.infoNode.active = true;
+                this.tipsLabel.string = "正在抢地主";
+                this.timeLabel.string = "5";
+            }
+        });
+        this.node.on("rob_state",(event)=>{
+            let detail = event.detail;
+            console.log("player node rob state detail: " + JSON.stringify(detail));
+            //detail: {accountID: accountID, value: value}
+            if (detail.accountID === this.accountID) {
+                this.infoNode.active = false;
+                switch (detail.value) {
+                    case "ok":
+                        this.robIconSprite.node.active = true;
+                        this.robIconSprite.spriteFrame = this.robIcon;
+                        break;
+                    case "no_ok":
+                        this.robIconSprite.node.active = true;
+                        this.robIconSprite.spriteFrame = this.noRobIcon;
+                        break;
+                    default:
+                        break;
+                }
             }
         });
     },
@@ -50,6 +84,12 @@ cc.Class({
             console.log("player ready detail: " + JSON.stringify(detail));
             if (detail === this.accountID) {
                 this.readyIcon.active = true;
+            }
+        });
+        this.node.on("can_rob_master",(event)=>{
+            let detail = event.detail;
+            if (detail === this.accountID) {
+                this.tipsLabel.string = "正在抢地主";
             }
         });
 

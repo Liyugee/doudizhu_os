@@ -1,10 +1,13 @@
 const defines = require("./../defines");
 const CardManager = require("./card-manager");
+
+//房间状态机
 const RoomState = {
     Invailed: -1,
     WaitingReady: 1,
     StartGame: 2,
-    PushCard: 3
+    PushCard: 3,
+    RobMaster: 4
 };
 
 //生成随机count位字符串
@@ -34,7 +37,7 @@ const getSeatIndex = function (playerList) {
 
 /**
  * Room类
- * @param spec  data
+ * @param spec      data
  * @param player    房主
  * @returns {*}     that
  * @constructor
@@ -50,6 +53,8 @@ const Room = function (spec,player) {
     let _playerList = [];
     let _state = RoomState.Invailed;
     let _cardManager = CardManager();
+    let _losePlayer = undefined;    //上一局输的玩家
+    let _robMasterPlayerList = [];
 
     const setState = function (state) {
         //当前状态与前一个状态相同则不做操作返回
@@ -71,6 +76,16 @@ const Room = function (spec,player) {
                 for (let i = 0; i < _playerList.length; i++) {
                     _playerList[i].sendPushCard(threeCards[i]);
                 }
+                setState(RoomState.RobMaster);
+                break;
+            case RoomState.RobMaster:
+                _robMasterPlayerList = [];
+                if (_losePlayer === undefined) {
+                    for (let i = _playerList.length - 1; i >= 0; i--) {
+                        _robMasterPlayerList.push(_playerList[i]);
+                    }
+                }
+                turnPlayerRobMaster();
                 break;
             default:
                 break;
@@ -115,6 +130,19 @@ const Room = function (spec,player) {
         }
     };
 
+    //广播玩家抢地主状态，轮番抢地主
+    that.playerRobMasterState = function (player,value) {
+        if (value === "ok") {
+            console.log("rob master ok");
+        } else if (value === "no_ok") {
+            console.log("rob master no ok");
+        }
+        for (let i = 0; i < _playerList.length; i++) {
+            _playerList[i].sendPlayerRobMasterState(player.accountID,value);
+        }
+        turnPlayerRobMaster();
+    };
+
     const changeHouseManager = function () {
         if (_playerList.length === 0) {
             return;
@@ -122,6 +150,18 @@ const Room = function (spec,player) {
         _houseManager = _playerList[0];
         for (let i = 0; i < _playerList.length; i++) {
             _playerList[i].sendChangeHouseManager(_houseManager.accountID);
+        }
+    };
+
+    //轮番抢地主
+    const turnPlayerRobMaster = function () {
+        if (_robMasterPlayerList.length === 0) {
+            console.log("抢地主结束");
+            return;
+        }
+        let player = _robMasterPlayerList.pop();
+        for (let i = 0; i < _playerList.length; i++) {
+            _playerList[i].sendPlayerCanRobMaster(player.accountID);
         }
     };
 
@@ -164,6 +204,8 @@ const Room = function (spec,player) {
         }
         setState(RoomState.StartGame);
     };
+
+
 
     //外部获取私有变量的方法
     Object.defineProperty(that,"bottom",{

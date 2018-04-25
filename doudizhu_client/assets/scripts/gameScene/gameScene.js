@@ -35,26 +35,32 @@ cc.Class({
             }
             this.node.emit("init");
         });
-
         global.socket.onPlayerJoinRoom((data)=>{
             this.addPlayerNode(data);
         });
-
         global.socket.onPlayerReady((data)=>{
             for (let i = 0; i < this.playerNodeList.length; i++) {
                 this.playerNodeList[i].emit("player_ready",data);
             }
         });
-
         global.socket.onGameStart(()=>{
             for (let i = 0; i < this.playerNodeList.length; i++) {
                 this.playerNodeList[i].emit("game_start");
             }
         });
-
         global.socket.onPushCard(()=>{
             for (let i = 0; i < this.playerNodeList.length; i++) {
                 this.playerNodeList[i].emit("push_card");
+            }
+        });
+        global.socket.onCanRobMaster((data)=>{
+            for (let i = 0; i < this.playerNodeList.length; i++) {
+                this.playerNodeList[i].emit("can_rob_master",data);
+            }
+        });
+        global.socket.onPlayerRobMasterState((data)=>{
+            for (let i = 0; i < this.playerNodeList.length; i++) {
+                this.playerNodeList[i].emit("rob_state",data);
             }
         });
     },

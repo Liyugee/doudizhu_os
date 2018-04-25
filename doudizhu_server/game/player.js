@@ -99,6 +99,11 @@ const Player = function (spec,socket,cbIndex,gameController) {
                     });
                 }
                 break;
+            case "rob_state":
+                if (_room) {
+                    _room.playerRobMasterState(that,notifyData.data);
+                }
+                break;
             default :
                 break;
         }
@@ -128,6 +133,16 @@ const Player = function (spec,socket,cbIndex,gameController) {
     that.sendPushCard = function (cards) {
         that.cards = cards;
         notify("push_card",cards,null);
+    };
+
+    //服务器向玩家发送可以抢地主消息
+    that.sendPlayerCanRobMaster = function (data) {
+        notify("can_rob_master",data,null);
+    };
+
+    //服务器发送玩家抢地主状态
+    that.sendPlayerRobMasterState = function (accountID,value) {
+        notify("player_rob_state",{accountID: accountID, value: value},null);
     };
 
     return that;
