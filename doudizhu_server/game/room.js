@@ -8,7 +8,8 @@ const RoomState = {
     StartGame: 2,
     PushCard: 3,
     RobMaster: 4,
-    ShowBottomCard: 5
+    ShowBottomCard: 5,
+    Playing: 6
 };
 
 //生成随机count位字符串
@@ -45,22 +46,23 @@ const getSeatIndex = function (playerList) {
  */
 const Room = function (spec, player) {
     let that = {};
-    that.roomID = getRandomStr(6);
-    let config = defines.createRoomConfig[spec.rate];
-    let _bottom = config.bottom;
-    let _rate = config.rate;
-    that.gold = 100;
-    let _houseManager = player;
-    let _playerList = [];
-    let _state = RoomState.Invailed;
-    let _cardManager = CardManager();
-    let _losePlayer = undefined;    //上一局输的玩家
-    let _robMasterPlayerList = [];
-    let _master = undefined;
-    let _threeCardsList = [];
+    that.roomID = getRandomStr(6);                      //随机房间ID
+    let config = defines.createRoomConfig[spec.rate];   //房间规则
+    let _bottom = config.bottom;                        //底分
+    let _rate = config.rate;                            //倍数
+    that.gold = 100;                                    //基础金币
+    let _houseManager = player;                         //房主
+    let _playerList = [];                               //玩家列表
+    let _state = RoomState.Invailed;                    //前一个状态
+    let _cardManager = CardManager();                   //卡牌管理器
+    let _losePlayer = undefined;                        //上一局输的玩家
+    let _robMasterPlayerList = [];                      //抢地主玩家列表
+    let _master = undefined;                            //地主
+    let _threeCardsList = [];                           //分成四堆的一副牌
+    let _pushPlayerList = [];                           //出牌玩家列表
 
+    //设置状态
     const setState = function (state) {
-        //当前状态与前一个状态相同则不做操作返回
         if (state === _state) {
             return;
         }
@@ -94,6 +96,26 @@ const Room = function (spec, player) {
                 for (let i = 0; i < _playerList.length; i++) {
                     _playerList[i].sendShowBottomCard(_threeCardsList[3]);
                 }
+                setTimeout(() => {
+                    setState(RoomState.Playing);
+                }, 2000);
+                break;
+            case RoomState.Playing:
+                let index = 0;
+                for (let i = 0; i < _playerList.length; i++) {
+                    if (_playerList[i].accountID === _master.accountID) {
+                        index = i;
+                    }
+                }
+                for (let i = _playerList.length - 1; i >= 0; i--) {
+                    let z = index;
+                    if (z >= 3) {
+                        z -= 3;
+                    }
+                    _pushPlayerList[i] = _playerList[z];
+                    index++;
+                }
+                turnPlayerPushCard();
                 break;
             default:
                 break;
@@ -103,6 +125,7 @@ const Room = function (spec, player) {
     setState(RoomState.WaitingReady);
 
 
+    // 玩家加入
     that.joinPlayer = function (player) {
         player.seatIndex = getSeatIndex(_playerList);
         for (let i = 0; i < _playerList.length; i++) {
@@ -117,6 +140,7 @@ const Room = function (spec, player) {
         _playerList.push(player);
     };
 
+    //玩家进入房间
     that.playerEnterRoomScene = function (player, cb) {
         let playerData = [];
         for (let i = 0; i < _playerList.length; i++) {
@@ -152,6 +176,7 @@ const Room = function (spec, player) {
         turnPlayerRobMaster();
     };
 
+    //改变房主（房主退出/离线）
     const changeHouseManager = function () {
         if (_playerList.length === 0) {
             return;
@@ -180,6 +205,7 @@ const Room = function (spec, player) {
         }
     };
 
+    //确定地主
     const changeMaster = function () {
         for (let i = 0; i < _playerList.length; i++) {
             _playerList[i].sendChangeMaster(_master);
@@ -187,6 +213,15 @@ const Room = function (spec, player) {
         setState(RoomState.ShowBottomCard);
     };
 
+    //轮流出牌
+    const turnPlayerPushCard = function () {
+        let player = _pushPlayerList.pop();
+        for (let i = 0; i < _playerList.length; i++) {
+            _playerList[i].sendPlayerCanPushCard(player.accountID);
+        }
+    };
+
+    //玩家离线
     that.playerOffline = function (player) {
         for (let i = 0; i < _playerList.length; i++) {
             if (_playerList[i].accountID === player.accountID) {
@@ -198,12 +233,14 @@ const Room = function (spec, player) {
         }
     };
 
+    // 玩家准备
     that.playerReady = function (player) {
         for (let i = 0; i < _playerList.length; i++) {
             _playerList[i].sendPlayerReady(player.accountID);
         }
     };
 
+    //房主开始游戏
     that.houseManagerStartGame = function (player, cb) {
         if (_playerList.length !== defines.roomFullPlayerCount) {
             if (cb) {

@@ -6,7 +6,8 @@ cc.Class({
     properties: {
         playingUI: cc.Node,
         cardPrefab: cc.Prefab,
-        robUI: cc.Node
+        robUI: cc.Node,
+        playUI: cc.Node
     },
 
     onLoad () {
@@ -46,6 +47,12 @@ cc.Class({
                 // this.bottomCards = [];
             })));
         });
+        global.socket.onCanPushCard((data)=>{
+            console.log("on can push card: " + JSON.stringify(data));
+            if (data === global.playerData.accountID) {
+                this.playUI.active = true;
+            }
+        });
         this.node.on("master_pos",(event)=>{
             let detail = event.detail;
             this.masterPos = detail;
@@ -69,7 +76,7 @@ cc.Class({
 
     runCardAction: function (card,pos,cb) {
         let moveAction = cc.moveTo(0.5,cc.p(card.x,240));
-        let scaleAction = cc.scaleTo(0.5,0.8);
+        // let scaleAction = cc.scaleTo(0.5,0.8);
         card.runAction(moveAction);
         card.runAction(cc.sequence(moveAction, cc.callFunc(()=>{
             // card.destroy();

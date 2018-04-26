@@ -117,6 +117,10 @@ const SocketController = function () {
         _event.on("show_bottom_card",cb);
     };
 
+    that.onCanPushCard = function (cb) {
+        _event.on("can_push_card",cb);
+    };
+
     return that;
 };
 export default SocketController;
