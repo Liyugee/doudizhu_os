@@ -18,6 +18,7 @@ cc.Class({
 
     showCard: function (card) {
         console.log("card: " + JSON.stringify(card));
+        this.id = card.id;
         // {"value":10,"shape":3,"id":46}
         const CardValue = {
             "12": 1,

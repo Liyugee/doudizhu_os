@@ -60,6 +60,7 @@ const Room = function (spec, player) {
     let _master = undefined;                            //地主
     let _threeCardsList = [];                           //分成四堆的一副牌
     let _pushPlayerList = [];                           //出牌玩家列表
+    let _masterIndex = undefined;
 
     //设置状态
     const setState = function (state) {
@@ -101,20 +102,12 @@ const Room = function (spec, player) {
                 }, 2000);
                 break;
             case RoomState.Playing:
-                let index = 0;
                 for (let i = 0; i < _playerList.length; i++) {
                     if (_playerList[i].accountID === _master.accountID) {
-                        index = i;
+                        _masterIndex = i;
                     }
                 }
-                for (let i = _playerList.length - 1; i >= 0; i--) {
-                    let z = index;
-                    if (z >= 3) {
-                        z -= 3;
-                    }
-                    _pushPlayerList[i] = _playerList[z];
-                    index++;
-                }
+
                 turnPlayerPushCard();
                 break;
             default:
@@ -215,10 +208,31 @@ const Room = function (spec, player) {
 
     //轮流出牌
     const turnPlayerPushCard = function () {
+        if (_pushPlayerList.length === 0) {
+            referTurnPushPlayer();
+        }
         let player = _pushPlayerList.pop();
         for (let i = 0; i < _playerList.length; i++) {
             _playerList[i].sendPlayerCanPushCard(player.accountID);
         }
+    };
+
+    //刷新轮流出牌
+    const referTurnPushPlayer = function () {
+        let index = _masterIndex;
+        for (let i = _playerList.length - 1; i >= 0; i--) {
+            let z = index;
+            if (z >= 3) {
+                z -= 3;
+            }
+            _pushPlayerList[i] = _playerList[z];
+            index++;
+        }
+    };
+
+    //玩家发牌
+    that.playerPushCard = function (player, cards) {
+        turnPlayerPushCard();
     };
 
     //玩家离线

@@ -139,6 +139,23 @@ cc.Class({
                 global.socket.notifyRobState("no_ok");
                 this.robUI.active = false;
                 break;
+            case "no_push":
+                console.log("不出");
+                this.playUI.active = false;
+                global.socket.notifyPushCard([]);
+                break;
+            case "tip":
+                console.log("提示");
+                break;
+            case "ok_push":
+                console.log("出牌");
+                this.playUI.active = false;
+                let cards = [];
+                for (let i = 0; i < 3; i++) {
+                    cards.push(this.cardList[i].getComponent("card").id);
+                }
+                global.socket.notifyPushCard(cards);
+                break;
             default:
                 break;
         }

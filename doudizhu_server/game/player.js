@@ -104,6 +104,11 @@ const Player = function (spec, socket, cbIndex, gameController) {
                     _room.playerRobMasterState(that, notifyData.data);
                 }
                 break;
+            case "player_push_card":
+                if (_room) {
+                    _room.playerPushCard(that,notifyData.data);
+                }
+                break;
             default :
                 break;
         }
