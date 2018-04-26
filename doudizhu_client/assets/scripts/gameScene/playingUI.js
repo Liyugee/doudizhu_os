@@ -67,9 +67,10 @@ cc.Class({
                     // card.position = cc.p(card.width * (17 - 1) * - 0.5 + card.width * i, -250);
                     card.x = card.width * 0.4 * (17 - 1) * - 0.5 + card.width * 0.4 * this.cardList.length;
                     card.y = -250;
-                    card.getComponent('card').showCard(bottomCardData[i]);
+                    card.getComponent('card').showCard(bottomCardData[i], global.playerData.accountID);
                     this.cardList.push(card);
                 }
+                this.sortCards();
             }
         });
     },
@@ -84,6 +85,31 @@ cc.Class({
                 cb();
             }
         })));
+    },
+
+    sortCards: function () {
+        this.cardList.sort((x,y)=>{
+            let a = x.getComponent("card").cardData;
+            let b = y.getComponent("card").cardData;
+            if (a.hasOwnProperty("value") && b.hasOwnProperty("value")) {
+                return b.value - a.value;
+            }
+            if (a.hasOwnProperty("king") && !b.hasOwnProperty("king")) {
+                return -1;
+            }
+            if (!a.hasOwnProperty("king") && b.hasOwnProperty("king")) {
+                return 1;
+            }
+            if (a.hasOwnProperty("king") && b.hasOwnProperty("king")) {
+                return b.king - a.king;
+            }
+        });
+        let posX = this.cardList[0].x;
+        for (let i = 0; i < this.cardList.length; i++) {
+            let card = this.cardList[i];
+            card.zIndex = i;
+            card.x = posX + card.width * 0.4 * i;
+        }
     },
     
     pushCard: function (data) {
@@ -111,7 +137,7 @@ cc.Class({
                 // card.position = cc.p(card.width * (17 - 1) * - 0.5 + card.width * i, -250);
                 card.x = card.width * 0.4 * (17 - 1) * - 0.5 + card.width * 0.4 * i;
                 card.y = -250;
-                card.getComponent('card').showCard(data[i]);
+                card.getComponent('card').showCard(data[i],global.playerData.accountID);
                 this.cardList.push(card);
             }
         }

@@ -9,16 +9,36 @@ cc.Class({
 
 
     onLoad () {
-
+        this.flag = false;
+        this.offset = 20;
     },
 
     initWithData: function () {
 
     },
 
-    showCard: function (card) {
+    setTouchEvent: function () {
+        if (this.accountID === global.playerData.accountID) {
+            this.node.on(cc.Node.EventType.TOUCH_START, ()=>{
+                console.log("touch: " + this.id);
+                if (!this.flag) {
+                    this.node.y += 20;
+                    this.flag = true;
+                } else {
+                    this.node.y -= 20;
+                    this.flag = false;
+                }
+            });
+        }
+    },
+
+    showCard: function (card, accountID) {
         console.log("card: " + JSON.stringify(card));
+        if (accountID) {
+            this.accountID = accountID;
+        }
         this.id = card.id;
+        this.cardData = card;
         // {"value":10,"shape":3,"id":46}
         const CardValue = {
             "12": 1,
@@ -53,5 +73,6 @@ cc.Class({
         }
         console.log("sprite key: " + spriteKey);
         this.node.getComponent(cc.Sprite).spriteFrame = this.cardsSpriteAtlas.getSpriteFrame(spriteKey);
+        this.setTouchEvent();
     }
 });
