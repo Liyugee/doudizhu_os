@@ -72,6 +72,18 @@ cc.Class({
                 this.masterIcon.runAction(cc.scaleTo(0.3,1).easing(cc.easeBackOut()));
             }
         });
+        this.node.on("add_three_card",(event)=>{
+            let detail = event.detail;
+            if (detail === this.accountID) {
+                for (let i = 0; i < 3; i++) {
+                    this.pushOneCard();
+                }
+            }
+        });
+        // this.pushCard();
+        // for (let i = 0; i < 3; i++) {
+        //     this.pushOneCard();
+        // }
     },
 
     initWithData: function (data,index) {
@@ -107,18 +119,26 @@ cc.Class({
         if (index === 1) {
             this.cardsNode.x *= -1;
         }
-    }
-    ,
+    },
     
     pushCard: function () {
         this.cardsNode.active = true;
         for (let i = 0; i < 17; i++) {
             let card = cc.instantiate(this.cardPrefab);
             card.parent = this.cardsNode;
-            card.scale = 0.4;
+            card.scale = 0.3;
             let height = card.height;
-            card.y = (17 - 1) * 0.5 * height * 0.3 * 0.4 - height * 0.3 * 0.4 * i;
+            card.y = (17 - 1) * 0.5 * height * 0.4 * 0.3 - height * 0.4 * 0.3 * i;
             this.cardList.push(card);
         }
+    },
+    
+    pushOneCard: function () {
+        let card = cc.instantiate(this.cardPrefab);
+        card.parent = this.cardsNode;
+        card.scale = 0.3;
+        let height = card.height;
+        card.y = (17 - 1) * 0.5 * height * 0.4 * 0.3 - this.cardList.length * height * 0.4 * 0.3;
+        this.cardList.push(card);
     }
 });

@@ -1,7 +1,7 @@
 /**
  * Player类主要用于解析客户端传来数据并回调
- * @param spec  服务端接收/创建的玩家信息
- * @param socket    客户端发送socket消息类型
+ * @param spec      服务端接收/创建的玩家信息
+ * @param socket    socket消息类型
  * @param cbIndex   客户端callBackMap的key
  * @param gameController    方便调用gameController
  * @returns {{}}    that
@@ -104,6 +104,11 @@ const Player = function (spec, socket, cbIndex, gameController) {
                     _room.playerRobMasterState(that, notifyData.data);
                 }
                 break;
+            case "player_push_card":
+                if (_room) {
+                    _room.playerPushCard(that,notifyData.data);
+                }
+                break;
             default :
                 break;
         }
@@ -145,15 +150,21 @@ const Player = function (spec, socket, cbIndex, gameController) {
         notify("player_rob_state", {accountID: accountID, value: value}, null);
     };
 
-
+    //服务器发送确认地主消息
     that.sendChangeMaster = function (player) {
         notify("change_master", player.accountID);
     };
 
+    //服务器向玩家发送底牌
     that.sendShowBottomCard = function (data) {
         notify("show_bottom_card",data);
     };
 
+    //服务器向玩家发送可以出牌消息
+    that.sendPlayerCanPushCard = function (data) {
+        notify("can_push_card",data);
+    };
+    
     return that;
 };
 

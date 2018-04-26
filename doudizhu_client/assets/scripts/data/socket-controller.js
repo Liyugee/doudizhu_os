@@ -79,6 +79,10 @@ const SocketController = function () {
         notify("rob_state",value,null);
     };
 
+    that.notifyPushCard = function (value) {
+        notify("player_push_card",value,null);
+    };
+
     //接收其他玩家加入房间信息
     that.onPlayerJoinRoom = function (cb) {
         _event.on("player_join_room",cb);
@@ -115,6 +119,10 @@ const SocketController = function () {
 
     that.onShowBottomCard = function (cb) {
         _event.on("show_bottom_card",cb);
+    };
+
+    that.onCanPushCard = function (cb) {
+        _event.on("can_push_card",cb);
     };
 
     return that;
