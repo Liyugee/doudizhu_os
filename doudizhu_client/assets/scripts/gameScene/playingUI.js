@@ -11,6 +11,8 @@ cc.Class({
 
     onLoad () {
         this.bottomCards = [];
+        let bottomCardData = [];
+        this.cardList = [];
         global.socket.onPushCard((data)=>{
             console.log("push card data: " + JSON.stringify(data));
             this.pushCard(data);
@@ -24,31 +26,56 @@ cc.Class({
         });
         global.socket.onShowBottomCard((data)=>{
             console.log("show bottom cards: " + JSON.stringify(data));
-            console.log("data.length: " + data.length);
+            bottomCardData = data;
             for (let i = 0; i < data.length; i++) {
                 let card = this.bottomCards[i];
                 card.getComponent('card').showCard(data[i]);
             }
             this.node.runAction(cc.sequence(cc.delayTime(2),cc.callFunc(()=>{
+                let index = 0;
+                const runActionCB = ()=>{
+                    index++;
+                    if (index === 3) {
+                        this.node.emit("add_card_to_player");
+                    }
+                };
                 for (let i = 0; i < this.bottomCards.length; i++) {
                     let card = this.bottomCards[i];
-                    this.runCardAction(card,this.masterPos);
+                    this.runCardAction(card,this.masterPos,runActionCB);
                 }
-                this.bottomCards = [];
+                // this.bottomCards = [];
             })));
         });
         this.node.on("master_pos",(event)=>{
             let detail = event.detail;
             this.masterPos = detail;
         });
+        this.node.on("add_card_to_player",()=>{
+            if (global.playerData.accountID === global.playerData.masterID) {
+                for (let i = 0; i < bottomCardData.length; i++) {
+                    let card = cc.instantiate(this.cardPrefab);
+                    card.parent = this.playingUI;
+                    //设置手牌位置及间距
+                    card.scale = 0.8;
+                    // card.position = cc.p(card.width * (17 - 1) * - 0.5 + card.width * i, -250);
+                    card.x = card.width * 0.4 * (17 - 1) * - 0.5 + card.width * 0.4 * this.cardList.length;
+                    card.y = -250;
+                    card.getComponent('card').showCard(bottomCardData[i]);
+                    this.cardList.push(card);
+                }
+            }
+        });
     },
 
-    runCardAction: function (card,pos) {
-        let moveAction = cc.moveTo(0.5,pos);
-        let scaleAction = cc.scaleTo(0.5,0.2);
+    runCardAction: function (card,pos,cb) {
+        let moveAction = cc.moveTo(0.5,cc.p(card.x,240));
+        let scaleAction = cc.scaleTo(0.5,0.8);
         card.runAction(moveAction);
-        card.runAction(cc.sequence(scaleAction, cc.callFunc(()=>{
-            card.destroy();
+        card.runAction(cc.sequence(moveAction, cc.callFunc(()=>{
+            // card.destroy();
+            if (cb) {
+                cb();
+            }
         })));
     },
     
@@ -77,8 +104,8 @@ cc.Class({
                 // card.position = cc.p(card.width * (17 - 1) * - 0.5 + card.width * i, -250);
                 card.x = card.width * 0.4 * (17 - 1) * - 0.5 + card.width * 0.4 * i;
                 card.y = -250;
-                // card.active = true;
                 card.getComponent('card').showCard(data[i]);
+                this.cardList.push(card);
             }
         }
 

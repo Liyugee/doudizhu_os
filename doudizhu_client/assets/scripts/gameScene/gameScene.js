@@ -65,6 +65,7 @@ cc.Class({
         });
         global.socket.onChangeMaster((data) => {
             console.log("on change master: " + data);
+            global.playerData.masterID = data;
             for (let i = 0; i < this.playerNodeList.length; i++) {
                 // this.playerNodeList[i].emit("change_master", data);
                 let node = this.playerNodeList[i];
@@ -73,7 +74,14 @@ cc.Class({
                     this.node.emit("master_pos",node.position);
                 }
             }
-        })
+        });
+        this.node.on("add_card_to_player", ()=>{
+            if (global.playerData.accountID !== global.playerData.masterID) {
+                for (let i = 0; i < this.playerNodeList.length; i++) {
+                    this.playerNodeList[i].emit("add_three_card", global.playerData.masterID);
+                }
+            }
+        });
     },
 
     initPlayerPos: function (seatIndex) {
