@@ -106,7 +106,13 @@ const Player = function (spec, socket, cbIndex, gameController) {
                 break;
             case "player_push_card":
                 if (_room) {
-                    _room.playerPushCard(that,notifyData.data);
+                    _room.playerPushCard(that, notifyData.data, (err,data)=>{
+                        if (err) {
+                            notify("player_push_card",{err: err},callBackIndex);
+                        } else {
+                            notify("player_push_card",{data: data},callBackIndex);
+                        }
+                    });
                 }
                 break;
             default :

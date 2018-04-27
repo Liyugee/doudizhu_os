@@ -7,10 +7,35 @@ cc.Class({
         cardsSpriteAtlas: cc.SpriteAtlas
     },
 
-
     onLoad () {
         this.flag = false;
         this.offset = 20;
+        this.node.on("init_y", ()=>{
+            if (this.flag) {
+                this.flag = false;
+                this.node.y -= this.offset;
+                cc.systemEvent.emit("un_choose_card", this.cardData);
+            }
+        });
+        this.node.on("pushed_card",(event)=>{
+            let detail = event.detail;
+            for (let i = 0; i < detail.length; i++) {
+                if (detail[i].id === this.id) {
+                    this.runToCenter(this.node);
+                }
+            }
+        });
+    },
+
+    runToCenter: function (node) {
+        let moveAction = cc.moveTo(0.3, cc.p(0, 0));
+        let scaleAction = cc.scaleTo(0.3, 0.3);
+        let seq = cc.sequence(scaleAction, cc.callFunc(()=>{
+            cc.systemEvent.emit("rm_card_from_list", this.id);
+            this.node.destroy();
+        }));
+        node.runAction(moveAction);
+        node.runAction(seq);
     },
 
     initWithData: function () {
@@ -22,11 +47,13 @@ cc.Class({
             this.node.on(cc.Node.EventType.TOUCH_START, ()=>{
                 console.log("touch: " + this.id);
                 if (!this.flag) {
-                    this.node.y += 20;
+                    this.node.y += this.offset;
                     this.flag = true;
+                    cc.systemEvent.emit("choose_card",this.cardData);
                 } else {
-                    this.node.y -= 20;
+                    this.node.y -= this.offset;
                     this.flag = false;
+                    cc.systemEvent.emit("un_choose_card",this.cardData);
                 }
             });
         }
@@ -39,7 +66,8 @@ cc.Class({
         }
         this.id = card.id;
         this.cardData = card;
-        // {"value":10,"shape":3,"id":46}
+        //card: {"value":10,"shape":3,"id":46}
+
         const CardValue = {
             "12": 1,
             "13": 2,

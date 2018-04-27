@@ -76,6 +76,19 @@ const CardManager = function () {
         return [threeCardsMap[0],threeCardsMap[1],threeCardsMap[2],_cardList];
     };
 
+    const isOneCard = function (cardList) {
+        if (cardList.length === 1) {
+            return true;
+        }
+    };
+
+    that.isStantardCards = function (cardList) {
+        if (isOneCard(cardList)) {
+            return true;
+        }
+        return false;
+    };
+
     return that;
 };
 

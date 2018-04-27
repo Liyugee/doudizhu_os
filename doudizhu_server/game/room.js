@@ -61,6 +61,7 @@ const Room = function (spec, player) {
     let _threeCardsList = [];                           //分成四堆的一副牌
     let _pushPlayerList = [];                           //出牌玩家列表
     let _masterIndex = undefined;
+    let _currentPlayerPushCardList = undefined;         //当前玩家出的牌
 
     //设置状态
     const setState = function (state) {
@@ -230,9 +231,30 @@ const Room = function (spec, player) {
         }
     };
 
-    //玩家发牌
-    that.playerPushCard = function (player, cards) {
-        turnPlayerPushCard();
+    //玩家出牌
+    that.playerPushCard = function (player, cards, cb) {
+        console.log("玩家出牌cards: " + JSON.stringify(cards));
+        //玩家选择不出牌
+        if (cards.length === 0) {
+            turnPlayerPushCard();
+        } else {
+            //玩家出的牌符合规则
+            if (_cardManager.isStantardCards(cards)) {
+                //还没有人出牌
+                if (_currentPlayerPushCardList === undefined) {
+                    if (cb) {
+                        cb(null, "出牌成功");
+                    }
+                    turnPlayerPushCard();
+                } else {
+
+                }
+            } else {
+                if (cb) {
+                    cb("不可用的牌型");
+                }
+            }
+        }
     };
 
     //玩家离线

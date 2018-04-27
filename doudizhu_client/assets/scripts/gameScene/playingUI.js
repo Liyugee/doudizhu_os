@@ -7,13 +7,16 @@ cc.Class({
         playingUI: cc.Node,
         cardPrefab: cc.Prefab,
         robUI: cc.Node,
-        playUI: cc.Node
+        playUI: cc.Node,
+        tipLabel: cc.Label
     },
 
     onLoad () {
-        this.bottomCards = [];
-        let bottomCardData = [];
-        this.cardList = [];
+        this.bottomCards = [];  //底牌node
+        let bottomCardData = [];    //底牌数据
+        this.cardList = [];     //一副牌
+        this.chooseCardDataList = [];   //选中手牌
+
         global.socket.onPushCard((data)=>{
             console.log("push card data: " + JSON.stringify(data));
             this.pushCard(data);
@@ -51,6 +54,7 @@ cc.Class({
             console.log("on can push card: " + JSON.stringify(data));
             if (data === global.playerData.accountID) {
                 this.playUI.active = true;
+                // this.chooseCardDataList = [];
             }
         });
         this.node.on("master_pos",(event)=>{
@@ -73,6 +77,27 @@ cc.Class({
                 this.sortCards();
             }
         });
+        cc.systemEvent.on("choose_card",(event)=>{
+            let detail = event.detail;
+            this.chooseCardDataList.push(detail);
+        });
+        cc.systemEvent.on("un_choose_card",(event)=>{
+            let detail = event.detail;
+            for (let i = 0; i < this.chooseCardDataList.length; i++) {
+                if (this.chooseCardDataList[i].id === detail.id) {
+                    this.chooseCardDataList.splice(i,1);
+                }
+            }
+        });
+        cc.systemEvent.on("rm_card_from_list", (event)=>{
+            let detail = event.detail;
+            for (let i = 0; i < this.cardList.length; i++) {
+                let card = this.cardList[i];
+                if (card.getComponent("card").id === detail.id) {
+                    this.cardList.splice(i,1);
+                }
+            }
+        })
     },
 
     runCardAction: function (card,pos,cb) {
@@ -168,19 +193,40 @@ cc.Class({
             case "no_push":
                 console.log("不出");
                 this.playUI.active = false;
-                global.socket.notifyPushCard([]);
+                global.socket.requestPlayerPushCard([],()=>{
+                    console.log("不出牌回调");
+                });
                 break;
             case "tip":
                 console.log("提示");
                 break;
             case "ok_push":
-                console.log("出牌");
-                this.playUI.active = false;
-                let cards = [];
-                for (let i = 0; i < 3; i++) {
-                    cards.push(this.cardList[i].getComponent("card").id);
+                if (this.chooseCardDataList.length === 0) {
+                    return;
                 }
-                global.socket.notifyPushCard(cards);
+                global.socket.requestPlayerPushCard(this.chooseCardDataList,(err,data)=>{
+                    if (err) {
+                        console.log("出牌err: " + err);
+                        if (this.tipLabel.string === "") {
+                            this.tipLabel.string = err;
+                            setTimeout(()=>{
+                                this.tipLabel.string = "";
+                            },2000);
+                        }
+                        //出牌错误手牌归位
+                        for (let i = 0; i < this.cardList.length; i++) {
+                            this.cardList[i].emit("init_y", this.chooseCardDataList);
+                        }
+                        this.chooseCardDataList = [];
+                    } else {
+                        console.log("玩家出的牌data： " + JSON.stringify(data));
+                        for (let i = 0; i < this.cardList.length; i++) {
+                            this.cardList[i].emit("pushed_card",this.chooseCardDataList);
+                        }
+                        this.playUI.active = false;
+                        this.chooseCardDataList = [];
+                    }
+                });
                 break;
             default:
                 break;

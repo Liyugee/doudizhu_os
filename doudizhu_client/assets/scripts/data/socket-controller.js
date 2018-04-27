@@ -24,8 +24,8 @@ const SocketController = function () {
         let callBackIndex = data.callBackIndex;
         if (_callBackMap.hasOwnProperty(callBackIndex)) {
             let cb = _callBackMap[callBackIndex];
-            if (data.err) {
-                cb(data.err);
+            if (data.data.err) {
+                cb(data.data.err);
             } else {
                 cb(null,data.data); //null为占位符，没有err时填null
             }
@@ -70,6 +70,10 @@ const SocketController = function () {
         request("start_game",{},cb);
     };
 
+    that.requestPlayerPushCard = function (value, cb) {
+        request("player_push_card",value,cb);
+    };
+
     //发送其他玩家准备消息
     that.notifyReady = function () {
         notify("ready",{},null);
@@ -77,10 +81,6 @@ const SocketController = function () {
 
     that.notifyRobState = function (value) {
         notify("rob_state",value,null);
-    };
-
-    that.notifyPushCard = function (value) {
-        notify("player_push_card",value,null);
     };
 
     //接收其他玩家加入房间信息
