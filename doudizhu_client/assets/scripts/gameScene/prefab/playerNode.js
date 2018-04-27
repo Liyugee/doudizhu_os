@@ -12,6 +12,7 @@ cc.Class({
         readyIcon: cc.Node,
         offlineIcon: cc.Node,
         cardsNode: cc.Node,
+        pushedCardNode: cc.Node,
         cardPrefab: cc.Prefab,
         infoNode: cc.Node,
         tipsLabel: cc.Label,
@@ -80,10 +81,12 @@ cc.Class({
                 }
             }
         });
-        // this.pushCard();
-        // for (let i = 0; i < 3; i++) {
-        //     this.pushOneCard();
-        // }
+        this.node.on("player_pushed_card", (event)=>{
+            let detail = event.detail;
+            if (detail.accountID === this.accountID && this.accountID !== global.playerData.accountID) {
+                this.playerPushedCard(detail.cards);
+            }
+        })
     },
 
     initWithData: function (data,index) {
@@ -118,6 +121,7 @@ cc.Class({
 
         if (index === 1) {
             this.cardsNode.x *= -1;
+            this.pushedCardNode.x *= -1;
         }
     },
     
@@ -140,5 +144,16 @@ cc.Class({
         let height = card.height;
         card.y = (17 - 1) * 0.5 * height * 0.4 * 0.3 - this.cardList.length * height * 0.4 * 0.3;
         this.cardList.push(card);
+    },
+    
+    playerPushedCard: function (cardsData) {
+        for (let i = 0; i < cardsData.length; i++) {
+            let card = cc.instantiate(this.cardPrefab);
+            card.parent = this.pushedCardNode;
+            card.scale = 0.25;
+            let height = card.height;
+            card.y = (cardsData.length - 1) * 0.5 * height * 0.4 * 0.3 - i * height * 0.4 * 0.3;
+            card.getComponent("card").showCard(cardsData[i]);
+        }
     }
 });

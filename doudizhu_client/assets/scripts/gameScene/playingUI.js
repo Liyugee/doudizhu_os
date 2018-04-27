@@ -8,7 +8,8 @@ cc.Class({
         cardPrefab: cc.Prefab,
         robUI: cc.Node,
         playUI: cc.Node,
-        tipLabel: cc.Label
+        tipLabel: cc.Label,
+        pushedCardNode: cc.Node
     },
 
     onLoad () {
@@ -37,7 +38,7 @@ cc.Class({
             }
             this.node.runAction(cc.sequence(cc.delayTime(2),cc.callFunc(()=>{
                 let index = 0;
-                const runActionCB = ()=>{
+                const runActionCb = ()=>{
                     index++;
                     if (index === 3) {
                         this.node.emit("add_card_to_player");
@@ -45,7 +46,8 @@ cc.Class({
                 };
                 for (let i = 0; i < this.bottomCards.length; i++) {
                     let card = this.bottomCards[i];
-                    this.runCardAction(card,this.masterPos,runActionCB);
+                    let width = card.width;
+                    this.runCardAction(card,cc.p((this.bottomCards.length - 1) * - 0.5 * width * 0.7 + width * 0.7 * i, 240),runActionCb);
                 }
                 // this.bottomCards = [];
             })));
@@ -56,6 +58,20 @@ cc.Class({
                 this.playUI.active = true;
                 // this.chooseCardDataList = [];
             }
+        });
+        global.socket.onPlayerPushedCard((data)=>{
+            if (data.accountID === global.playerData.accountID) {
+                let cardsData = data.cards;
+                for (let i = 0; i < cardsData.length; i++) {
+                    let card = cc.instantiate(this.cardPrefab);
+                    card.parent = this.pushedCardNode;
+                    card.scale = 0.6;
+                    let width = card.width;
+                    card.x = (cardsData.length - 1) * -0.5 * width * 0.6 + width * 0.6 * i;
+                    card.getComponent("card").showCard(cardsData[i]);
+                }
+            }
+
         });
         this.node.on("master_pos",(event)=>{
             let detail = event.detail;
@@ -101,9 +117,9 @@ cc.Class({
     },
 
     runCardAction: function (card,pos,cb) {
-        let moveAction = cc.moveTo(0.5,cc.p(card.x,240));
-        // let scaleAction = cc.scaleTo(0.5,0.8);
-        card.runAction(moveAction);
+        let moveAction = cc.moveTo(0.5,pos);
+        let scaleAction = cc.scaleTo(0.5,0.6);
+        card.runAction(scaleAction);
         card.runAction(cc.sequence(moveAction, cc.callFunc(()=>{
             // card.destroy();
             if (cb) {

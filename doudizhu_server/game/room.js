@@ -231,6 +231,16 @@ const Room = function (spec, player) {
         }
     };
 
+    //发送玩家已出的牌
+    const sendPlayerPushedCard = function (player, cards) {
+        for (let i = 0; i < _playerList.length; i++) {
+            _playerList[i].sendPlayerPushedCard({
+                accountID: player.accountID,
+                cards: cards
+            });
+        }
+    };
+
     //玩家出牌
     that.playerPushCard = function (player, cards, cb) {
         console.log("玩家出牌cards: " + JSON.stringify(cards));
@@ -245,6 +255,7 @@ const Room = function (spec, player) {
                     if (cb) {
                         cb(null, "出牌成功");
                     }
+                    sendPlayerPushedCard(player,cards);
                     turnPlayerPushCard();
                 } else {
 

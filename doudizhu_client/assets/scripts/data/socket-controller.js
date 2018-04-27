@@ -71,7 +71,7 @@ const SocketController = function () {
     };
 
     that.requestPlayerPushCard = function (value, cb) {
-        request("player_push_card",value,cb);
+        request("myself_push_card",value,cb);
     };
 
     //发送其他玩家准备消息
@@ -123,6 +123,10 @@ const SocketController = function () {
 
     that.onCanPushCard = function (cb) {
         _event.on("can_push_card",cb);
+    };
+
+    that.onPlayerPushedCard = function (cb) {
+        _event.on("player_pushed_card",cb);
     };
 
     return that;
