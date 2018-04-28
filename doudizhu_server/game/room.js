@@ -258,7 +258,7 @@ const Room = function (spec, player) {
                     sendPlayerPushedCard(player,cards);
                     turnPlayerPushCard();
                 } else {
-
+                    //
                 }
             } else {
                 if (cb) {

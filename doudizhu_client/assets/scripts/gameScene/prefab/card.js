@@ -31,7 +31,7 @@ cc.Class({
         let moveAction = cc.moveTo(0.3, cc.p(0, 0));
         let scaleAction = cc.scaleTo(0.3, 0.3);
         let seq = cc.sequence(scaleAction, cc.callFunc(()=>{
-            cc.systemEvent.emit("rm_card_from_list", this.id);
+            // cc.systemEvent.emit("rm_card_from_list", this.id);
             this.node.destroy();
         }));
         node.runAction(moveAction);

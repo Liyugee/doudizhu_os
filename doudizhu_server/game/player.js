@@ -172,6 +172,18 @@ const Player = function (spec, socket, cbIndex, gameController) {
     };
 
     that.sendPlayerPushedCard = function (data) {
+        let accountID = data.accountID;
+        if (accountID === that.accountID) {
+            let cards = data.cards;
+            for (let i = 0; i < cards.length; i++) {
+                let card = cards[i];
+                for (let j = 0; j < that.cards.length; j++) {
+                    if (card.id === that.cards[j].id) {
+                        that.cards.splice(j,1);
+                    }
+                }
+            }
+        }
         notify("player_pushed_card", data);
     };
     
