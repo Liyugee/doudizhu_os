@@ -76,18 +76,56 @@ const CardManager = function () {
         return [threeCardsMap[0],threeCardsMap[1],threeCardsMap[2],_cardList];
     };
 
+    //判断单张
     const isOneCard = function (cardList) {
         if (cardList.length === 1) {
             return true;
         }
     };
 
+    //判断对子
+    const isOnePair = function (cardList) {
+        if (cardList.length === 2) {
+            if (cardList[0].value !== undefined && cardList[0].value === cardList[1].value) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    //判断三张
+    const isThreeCard = function (cardList) {
+        if (cardList.length === 3) {
+            let map = {};
+            for (let i = 0; i < cardList.length; i++) {
+                if (map.hasOwnProperty(cardList[i].value)) {
+                    map[cardList[i].value]++;
+                } else {
+                    map[cardList[i].value] = 1;
+                }
+            }
+            if (map[cardList[0].value] === 3) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    //出牌是否符合规则
     that.isStantardCards = function (cardList) {
         if (isOneCard(cardList)) {
             return true;
         }
+        if (isOnePair(cardList)) {
+            return true;
+        }
+        if (isThreeCard(cardList)) {
+            return true;
+        }
+
         return false;
     };
+
 
     return that;
 };

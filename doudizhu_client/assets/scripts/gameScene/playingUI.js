@@ -77,8 +77,7 @@ cc.Class({
                     card.parent = this.pushedCardNode;
                     card.scale = 0.6;
                     let width = card.width;
-                    card.x = (cardsData.length - 1) * -0.5 * width * 0.7 + width * 0.7 * i;
-                    // card.y = 30;
+                    card.x = (cardsData.length - 1) * -0.5 * width * 0.7 * 0.4 + width * 0.7 * 0.4 * i;
                     card.getComponent("card").showCard(cardsData[i]);
                 }
             }
@@ -99,7 +98,7 @@ cc.Class({
                     card.scale = 0.8;
                     let width = card.width;
                     // card.position = cc.p(card.width * (17 - 1) * - 0.5 + card.width * i, -250);
-                    card.x = width * 0.4 * (17 - 1) * -0.5 + width * 0.4 * this.cardList.length + 500;
+                    card.x = width * 0.4 * (17 - 1) * -0.5 + width * 0.4 * this.cardList.length;
                     card.y = -250;
                     card.getComponent('card').showCard(bottomCardData[i], global.playerData.accountID);
                     this.cardList.push(card);
