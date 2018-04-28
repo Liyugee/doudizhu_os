@@ -1,4 +1,3 @@
-
 import global from "../../global";
 
 cc.Class({
@@ -27,14 +26,18 @@ cc.Class({
         this.cardList = [];
         this.readyIcon.active = false;
         this.offlineIcon.active = false;
+
+        //监听游戏开始
         this.node.on("game_start",()=>{
             this.readyIcon.active = false;
         });
+        //监听发牌
         this.node.on("push_card",()=>{
             if (this.accountID !== global.playerData.accountID) {
                 this.pushCard();
             }
         });
+        // 监听可以抢地主
         this.node.on("can_rob_master",(event)=>{
             let detail = event.detail;
             if (detail === this.accountID && detail !== global.playerData.accountID) {
@@ -43,6 +46,7 @@ cc.Class({
                 this.timeLabel.string = "5";
             }
         });
+        //监听玩家抢地主状态
         this.node.on("rob_state",(event)=>{
             let detail = event.detail;
             console.log("player node rob state detail: " + JSON.stringify(detail));
@@ -63,6 +67,7 @@ cc.Class({
                 }
             }
         });
+        //监听确定地主
         this.node.on("change_master",(event)=>{
             let detail = event.detail;
             console.log("=============change master detail: " + JSON.stringify(detail));
@@ -73,6 +78,7 @@ cc.Class({
                 this.masterIcon.runAction(cc.scaleTo(0.3,1).easing(cc.easeBackOut()));
             }
         });
+        //地主手牌添加三张底牌
         this.node.on("add_three_card",(event)=>{
             let detail = event.detail;
             if (detail === this.accountID) {
@@ -81,6 +87,7 @@ cc.Class({
                 }
             }
         });
+        //监听玩家出的牌
         this.node.on("player_pushed_card", (event)=>{
             let detail = event.detail;
             if (detail.accountID === this.accountID && this.accountID !== global.playerData.accountID) {
@@ -147,13 +154,31 @@ cc.Class({
     },
     
     playerPushedCard: function (cardsData) {
+        for (let i = 0; i < this.pushedCardNode.children.length; i++) {
+            this.pushedCardNode.children[i].destroy();
+        }
         for (let i = 0; i < cardsData.length; i++) {
             let card = cc.instantiate(this.cardPrefab);
             card.parent = this.pushedCardNode;
-            card.scale = 0.25;
+            card.scale = 0.4;
             let height = card.height;
             card.y = (cardsData.length - 1) * 0.5 * height * 0.4 * 0.3 - i * height * 0.4 * 0.3;
             card.getComponent("card").showCard(cardsData[i]);
+        }
+        for (let i = 0; i < cardsData.length; i++) {
+            console.log("111111111111111");
+            let card = this.cardList.pop();
+            card.destroy();
+        }
+        this.referCardsPos();
+    },
+
+    //更新手牌位置
+    referCardsPos: function () {
+        for (let i = 0; i < this.cardList.length; i++) {
+            let card = this.cardList[i];
+            let height = card.height;
+            card.y = (this.cardList.length - 1) * 0.5 * height * 0.4 * 0.3 - height * 0.4 * 0.3 *i;
         }
     }
 });
