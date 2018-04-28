@@ -104,9 +104,15 @@ const Player = function (spec, socket, cbIndex, gameController) {
                     _room.playerRobMasterState(that, notifyData.data);
                 }
                 break;
-            case "player_push_card":
+            case "myself_push_card":
                 if (_room) {
-                    _room.playerPushCard(that,notifyData.data);
+                    _room.playerPushCard(that, notifyData.data, (err,data)=>{
+                        if (err) {
+                            notify("myself_push_card",{err: err},callBackIndex);
+                        } else {
+                            notify("myself_push_card",{data: data},callBackIndex);
+                        }
+                    });
                 }
                 break;
             default :
@@ -163,6 +169,10 @@ const Player = function (spec, socket, cbIndex, gameController) {
     //服务器向玩家发送可以出牌消息
     that.sendPlayerCanPushCard = function (data) {
         notify("can_push_card",data);
+    };
+
+    that.sendPlayerPushedCard = function (data) {
+        notify("player_pushed_card", data);
     };
     
     return that;

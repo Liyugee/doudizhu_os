@@ -75,6 +75,12 @@ cc.Class({
                 }
             }
         });
+        global.socket.onPlayerPushedCard((data)=>{
+            console.log("玩家打出的牌: " + JSON.stringify(data));
+            for (let i = 0; i < this.playerNodeList.length; i++) {
+                this.playerNodeList[i].emit("player_pushed_card", data);
+            }
+        });
         this.node.on("add_card_to_player", ()=>{
             if (global.playerData.accountID !== global.playerData.masterID) {
                 for (let i = 0; i < this.playerNodeList.length; i++) {

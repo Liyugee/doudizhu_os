@@ -7,13 +7,17 @@ cc.Class({
         playingUI: cc.Node,
         cardPrefab: cc.Prefab,
         robUI: cc.Node,
-        playUI: cc.Node
+        playUI: cc.Node,
+        tipLabel: cc.Label,
+        pushedCardNode: cc.Node
     },
 
     onLoad () {
-        this.bottomCards = [];
-        let bottomCardData = [];
-        this.cardList = [];
+        this.bottomCards = [];  //底牌node
+        let bottomCardData = [];    //底牌数据
+        this.cardList = [];     //一副牌
+        this.chooseCardDataList = [];   //选中手牌
+
         global.socket.onPushCard((data)=>{
             console.log("push card data: " + JSON.stringify(data));
             this.pushCard(data);
@@ -34,7 +38,7 @@ cc.Class({
             }
             this.node.runAction(cc.sequence(cc.delayTime(2),cc.callFunc(()=>{
                 let index = 0;
-                const runActionCB = ()=>{
+                const runActionCb = ()=>{
                     index++;
                     if (index === 3) {
                         this.node.emit("add_card_to_player");
@@ -42,7 +46,8 @@ cc.Class({
                 };
                 for (let i = 0; i < this.bottomCards.length; i++) {
                     let card = this.bottomCards[i];
-                    this.runCardAction(card,this.masterPos,runActionCB);
+                    let width = card.width;
+                    this.runCardAction(card,cc.p((this.bottomCards.length - 1) * - 0.5 * width * 0.7 + width * 0.7 * i, 240),runActionCb);
                 }
                 // this.bottomCards = [];
             })));
@@ -51,7 +56,22 @@ cc.Class({
             console.log("on can push card: " + JSON.stringify(data));
             if (data === global.playerData.accountID) {
                 this.playUI.active = true;
+                // this.chooseCardDataList = [];
             }
+        });
+        global.socket.onPlayerPushedCard((data)=>{
+            if (data.accountID === global.playerData.accountID) {
+                let cardsData = data.cards;
+                for (let i = 0; i < cardsData.length; i++) {
+                    let card = cc.instantiate(this.cardPrefab);
+                    card.parent = this.pushedCardNode;
+                    card.scale = 0.6;
+                    let width = card.width;
+                    card.x = (cardsData.length - 1) * -0.5 * width * 0.6 + width * 0.6 * i;
+                    card.getComponent("card").showCard(cardsData[i]);
+                }
+            }
+
         });
         this.node.on("master_pos",(event)=>{
             let detail = event.detail;
@@ -73,12 +93,33 @@ cc.Class({
                 this.sortCards();
             }
         });
+        cc.systemEvent.on("choose_card",(event)=>{
+            let detail = event.detail;
+            this.chooseCardDataList.push(detail);
+        });
+        cc.systemEvent.on("un_choose_card",(event)=>{
+            let detail = event.detail;
+            for (let i = 0; i < this.chooseCardDataList.length; i++) {
+                if (this.chooseCardDataList[i].id === detail.id) {
+                    this.chooseCardDataList.splice(i,1);
+                }
+            }
+        });
+        cc.systemEvent.on("rm_card_from_list", (event)=>{
+            let detail = event.detail;
+            for (let i = 0; i < this.cardList.length; i++) {
+                let card = this.cardList[i];
+                if (card.getComponent("card").id === detail.id) {
+                    this.cardList.splice(i,1);
+                }
+            }
+        })
     },
 
     runCardAction: function (card,pos,cb) {
-        let moveAction = cc.moveTo(0.5,cc.p(card.x,240));
-        // let scaleAction = cc.scaleTo(0.5,0.8);
-        card.runAction(moveAction);
+        let moveAction = cc.moveTo(0.5,pos);
+        let scaleAction = cc.scaleTo(0.5,0.6);
+        card.runAction(scaleAction);
         card.runAction(cc.sequence(moveAction, cc.callFunc(()=>{
             // card.destroy();
             if (cb) {
@@ -168,19 +209,40 @@ cc.Class({
             case "no_push":
                 console.log("不出");
                 this.playUI.active = false;
-                global.socket.notifyPushCard([]);
+                global.socket.requestPlayerPushCard([],()=>{
+                    console.log("不出牌回调");
+                });
                 break;
             case "tip":
                 console.log("提示");
                 break;
             case "ok_push":
-                console.log("出牌");
-                this.playUI.active = false;
-                let cards = [];
-                for (let i = 0; i < 3; i++) {
-                    cards.push(this.cardList[i].getComponent("card").id);
+                if (this.chooseCardDataList.length === 0) {
+                    return;
                 }
-                global.socket.notifyPushCard(cards);
+                global.socket.requestPlayerPushCard(this.chooseCardDataList,(err,data)=>{
+                    if (err) {
+                        console.log("出牌err: " + err);
+                        if (this.tipLabel.string === "") {
+                            this.tipLabel.string = err;
+                            setTimeout(()=>{
+                                this.tipLabel.string = "";
+                            },2000);
+                        }
+                        //出牌错误手牌归位
+                        for (let i = 0; i < this.cardList.length; i++) {
+                            this.cardList[i].emit("init_y", this.chooseCardDataList);
+                        }
+                        this.chooseCardDataList = [];
+                    } else {
+                        console.log("玩家出的牌data： " + JSON.stringify(data));
+                        for (let i = 0; i < this.cardList.length; i++) {
+                            this.cardList[i].emit("pushed_card",this.chooseCardDataList);
+                        }
+                        this.playUI.active = false;
+                        this.chooseCardDataList = [];
+                    }
+                });
                 break;
             default:
                 break;
