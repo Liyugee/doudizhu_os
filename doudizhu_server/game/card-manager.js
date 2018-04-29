@@ -111,6 +111,90 @@ const CardManager = function () {
         return false;
     };
 
+    //判断王炸
+    const isKingBoom = function (cardList) {
+        if (cardList[0].king !== undefined && cardList[1].king !== undefined) {
+            return true;
+        }
+        return false;
+    };
+
+    //判断普通炸弹
+    const isFourBoom = function (cardList) {
+        if (cardList.length === 4) {
+            let map = {};
+            for (let i = 0; i < cardList.length; i++) {
+                if (map.hasOwnProperty(cardList[i].value)) {
+                    map[cardList[i].value]++;
+                } else {
+                    map[cardList[i].value] = 1;
+                }
+            }
+            if (map[cardList[0].value] === 4) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    //判断三带一
+    const isThreeWithOne = function (cardList) {
+        if (cardList.length === 4) {
+            let map = {};
+            for (let i = 0; i < cardList.length; i++) {
+                let key = -1;
+                if (cardList[i].value === undefined) {
+                    key = cardList[i].king;
+                } else {
+                    key = cardList[i].value;
+                }
+                if (map.hasOwnProperty(key)) {
+                    map[key] ++;
+                } else {
+                    map[key] = 1;
+                }
+            }
+            let count = 0;
+            let maxNum = -1;
+            for (let i in map) {
+                count++;
+                if (maxNum < map[i]) {
+                    maxNum = map[i];
+                }
+            }
+            if (count === 2 && maxNum === 3) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    //判断三带二
+    const isThreeWithTwo = function (cardList) {
+        if (cardList.length === 5) {
+            let map = {};
+            for (let i = 0; i < cardList.length; i++) {
+                if (map.hasOwnProperty(cardList[i].value)) {
+                    map[cardList[i].value] ++;
+                } else {
+                    map[cardList[i].value] = 1;
+                }
+            }
+            let count = 0;
+            let maxNum = -1;
+            for (let i in map) {
+                count++;
+                if (maxNum < map[i]) {
+                    maxNum = map[i];
+                }
+            }
+            if (count === 2 && maxNum === 3) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     //出牌是否符合规则
     that.isStantardCards = function (cardList) {
         if (isOneCard(cardList)) {
@@ -120,6 +204,18 @@ const CardManager = function () {
             return true;
         }
         if (isThreeCard(cardList)) {
+            return true;
+        }
+        if (isKingBoom(cardList)) {
+            return true;
+        }
+        if (isFourBoom(cardList)) {
+            return true;
+        }
+        if (isThreeWithOne(cardList)) {
+            return true;
+        }
+        if (isThreeWithTwo(cardList)) {
             return true;
         }
 
