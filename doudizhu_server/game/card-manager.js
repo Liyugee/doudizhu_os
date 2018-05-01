@@ -18,7 +18,7 @@ const CardValue = {
 
 const CardShape = {
     "S": 1, //Spade黑桃
-    "H": 2, //Heart红红桃
+    "H": 2, //Heart红桃
     "C": 3, //Club梅花
     "D": 4  //Diamond方块
 };
@@ -72,6 +72,30 @@ const CardManager = function () {
                     threeCardsMap[j] = [_cardList.pop()];
                 }
             }
+        }
+        let cardlist  = [
+            Card(CardValue["3"],CardShape["S"]),
+            Card(CardValue["3"],CardShape["S"]),
+            Card(CardValue["3"],CardShape["S"]),
+            Card(CardValue["4"],CardShape["S"]),
+            Card(CardValue["4"],CardShape["S"]),
+            Card(CardValue["4"],CardShape["S"]),
+            Card(CardValue["5"],CardShape["H"]),
+            Card(CardValue["5"],CardShape["H"]),
+            Card(CardValue["5"],CardShape["H"]),
+            Card(CardValue["6"],CardShape["H"]),
+            Card(CardValue["6"],CardShape["H"]),
+            Card(CardValue["6"],CardShape["H"]),
+            Card(CardValue["7"],CardShape["H"]),
+            Card(CardValue["7"],CardShape["H"]),
+            Card(CardValue["7"],CardShape["H"]),
+            Card(undefined,undefined,Kings.K),
+            Card(undefined,undefined,Kings.k)
+        ];
+        for (let i = 0; i < threeCardsMap[0].length; i++) {
+            let id = threeCardsMap[0][i].id;
+            cardlist[i].id = id;
+            threeCardsMap[0][i] = cardlist[i];
         }
         return [threeCardsMap[0],threeCardsMap[1],threeCardsMap[2],_cardList];
     };
@@ -174,10 +198,16 @@ const CardManager = function () {
         if (cardList.length === 5) {
             let map = {};
             for (let i = 0; i < cardList.length; i++) {
-                if (map.hasOwnProperty(cardList[i].value)) {
-                    map[cardList[i].value] ++;
+                let key = -1;
+                if (cardList[i].value === undefined) {
+                    key = cardList[i].king;
                 } else {
-                    map[cardList[i].value] = 1;
+                    key = cardList[i].value;
+                }
+                if (map.hasOwnProperty(key)) {
+                    map[key] ++;
+                } else {
+                    map[key] = 1;
                 }
             }
             let count = 0;
@@ -189,6 +219,31 @@ const CardManager = function () {
                 }
             }
             if (count === 2 && maxNum === 3) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    //判断飞机
+    const isPlane = function (cardList) {
+        if (cardList.length === 6) {
+            let map = {};
+            for (let i = 0; i < cardList.length; i++) {
+                if (map.hasOwnProperty(cardList[i].value)) {
+                    map[cardList[i].value] ++;
+                } else {
+                    map[cardList[i].value] = 1;
+                }
+            }
+            let count = 0;
+            for (let i in map) {
+                count++;
+                if (map[i] !== 3) {
+                    return false;
+                }
+            }
+            if (count === 2) {
                 return true;
             }
         }
@@ -216,6 +271,9 @@ const CardManager = function () {
             return true;
         }
         if (isThreeWithTwo(cardList)) {
+            return true;
+        }
+        if (isPlane(cardList)) {
             return true;
         }
 
