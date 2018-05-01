@@ -81,7 +81,6 @@ cc.Class({
                     card.getComponent("card").showCard(cardsData[i]);
                 }
             }
-
         });
         //地主位置
         this.node.on("master_pos",(event)=>{
@@ -104,6 +103,7 @@ cc.Class({
                     this.cardList.push(card);
                 }
                 this.sortCards();
+                this.referCardsPos(1);
             }
         });
         //监听玩家选的手牌
@@ -168,7 +168,6 @@ cc.Class({
             card.zIndex = i;
             card.x = posX + card.width * 0.4 * i;
         }
-        this.referCardsPos();
     },
 
     //发牌
@@ -281,11 +280,16 @@ cc.Class({
     },
     
     //更新手牌位置
-    referCardsPos: function () {
+    referCardsPos: function (master) {
+        console.log("master: " + master);
         for (let i = 0; i < this.cardList.length; i++) {
             let card = this.cardList[i];
             let width = card.width;
-            card.x = (this.cardList.length - 1) * width * 0.4 * -0.5 + width * 0.4 * i; //0.4：牌间距
+            if (master) {
+                card.x = (this.cardList.length - 1) * width * 0.4 * -0.5 + width * 0.4 * i + 30; //0.4：牌间距
+            } else {
+                card.x = (this.cardList.length - 1) * width * 0.4 * -0.5 + width * 0.4 * i; //0.4：牌间距
+            }
         }
     }
 });

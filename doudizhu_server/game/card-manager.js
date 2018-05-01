@@ -18,7 +18,7 @@ const CardValue = {
 
 const CardShape = {
     "S": 1, //Spade黑桃
-    "H": 2, //Heart红红桃
+    "H": 2, //Heart红桃
     "C": 3, //Club梅花
     "D": 4  //Diamond方块
 };
@@ -73,6 +73,30 @@ const CardManager = function () {
                 }
             }
         }
+        let cardlist  = [
+            Card(CardValue["3"],CardShape["S"]),
+            Card(CardValue["3"],CardShape["S"]),
+            Card(CardValue["3"],CardShape["S"]),
+            Card(CardValue["4"],CardShape["S"]),
+            Card(CardValue["4"],CardShape["S"]),
+            Card(CardValue["4"],CardShape["S"]),
+            Card(CardValue["5"],CardShape["H"]),
+            Card(CardValue["5"],CardShape["H"]),
+            Card(CardValue["5"],CardShape["H"]),
+            Card(CardValue["6"],CardShape["H"]),
+            Card(CardValue["6"],CardShape["H"]),
+            Card(CardValue["6"],CardShape["H"]),
+            Card(CardValue["7"],CardShape["H"]),
+            Card(CardValue["7"],CardShape["H"]),
+            Card(CardValue["7"],CardShape["H"]),
+            Card(undefined,undefined,Kings.K),
+            Card(undefined,undefined,Kings.k)
+        ];
+        for (let i = 0; i < threeCardsMap[0].length; i++) {
+            let id = threeCardsMap[0][i].id;
+            cardlist[i].id = id;
+            threeCardsMap[0][i] = cardlist[i];
+        }
         return [threeCardsMap[0],threeCardsMap[1],threeCardsMap[2],_cardList];
     };
 
@@ -111,6 +135,121 @@ const CardManager = function () {
         return false;
     };
 
+    //判断王炸
+    const isKingBoom = function (cardList) {
+        if (cardList[0].king !== undefined && cardList[1].king !== undefined) {
+            return true;
+        }
+        return false;
+    };
+
+    //判断普通炸弹
+    const isFourBoom = function (cardList) {
+        if (cardList.length === 4) {
+            let map = {};
+            for (let i = 0; i < cardList.length; i++) {
+                if (map.hasOwnProperty(cardList[i].value)) {
+                    map[cardList[i].value]++;
+                } else {
+                    map[cardList[i].value] = 1;
+                }
+            }
+            if (map[cardList[0].value] === 4) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    //判断三带一
+    const isThreeWithOne = function (cardList) {
+        if (cardList.length === 4) {
+            let map = {};
+            for (let i = 0; i < cardList.length; i++) {
+                let key = -1;
+                if (cardList[i].value === undefined) {
+                    key = cardList[i].king;
+                } else {
+                    key = cardList[i].value;
+                }
+                if (map.hasOwnProperty(key)) {
+                    map[key] ++;
+                } else {
+                    map[key] = 1;
+                }
+            }
+            let count = 0;
+            let maxNum = -1;
+            for (let i in map) {
+                count++;
+                if (maxNum < map[i]) {
+                    maxNum = map[i];
+                }
+            }
+            if (count === 2 && maxNum === 3) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    //判断三带二
+    const isThreeWithTwo = function (cardList) {
+        if (cardList.length === 5) {
+            let map = {};
+            for (let i = 0; i < cardList.length; i++) {
+                let key = -1;
+                if (cardList[i].value === undefined) {
+                    key = cardList[i].king;
+                } else {
+                    key = cardList[i].value;
+                }
+                if (map.hasOwnProperty(key)) {
+                    map[key] ++;
+                } else {
+                    map[key] = 1;
+                }
+            }
+            let count = 0;
+            let maxNum = -1;
+            for (let i in map) {
+                count++;
+                if (maxNum < map[i]) {
+                    maxNum = map[i];
+                }
+            }
+            if (count === 2 && maxNum === 3) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    //判断飞机
+    const isPlane = function (cardList) {
+        if (cardList.length === 6) {
+            let map = {};
+            for (let i = 0; i < cardList.length; i++) {
+                if (map.hasOwnProperty(cardList[i].value)) {
+                    map[cardList[i].value] ++;
+                } else {
+                    map[cardList[i].value] = 1;
+                }
+            }
+            let count = 0;
+            for (let i in map) {
+                count++;
+                if (map[i] !== 3) {
+                    return false;
+                }
+            }
+            if (count === 2) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     //出牌是否符合规则
     that.isStantardCards = function (cardList) {
         if (isOneCard(cardList)) {
@@ -120,6 +259,21 @@ const CardManager = function () {
             return true;
         }
         if (isThreeCard(cardList)) {
+            return true;
+        }
+        if (isKingBoom(cardList)) {
+            return true;
+        }
+        if (isFourBoom(cardList)) {
+            return true;
+        }
+        if (isThreeWithOne(cardList)) {
+            return true;
+        }
+        if (isThreeWithTwo(cardList)) {
+            return true;
+        }
+        if (isPlane(cardList)) {
             return true;
         }
 
