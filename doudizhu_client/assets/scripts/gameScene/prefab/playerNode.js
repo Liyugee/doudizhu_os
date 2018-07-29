@@ -166,7 +166,6 @@ cc.Class({
             card.getComponent("card").showCard(cardsData[i]);
         }
         for (let i = 0; i < cardsData.length; i++) {
-            console.log("111111111111111");
             let card = this.cardList.pop();
             card.destroy();
         }

@@ -24,8 +24,8 @@ const CardShape = {
 };
 
 const Kings = {
-    k: 1,
-    K: 2
+    k: 54,  //小王
+    K: 53   //大王
 };
 
 const CardManager = function () {
@@ -250,30 +250,84 @@ const CardManager = function () {
         return false;
     };
 
+    //判断飞机带两单张
+    const isPlaneWithOne = function (cardList) {
+        if (cardList.length === 8) {
+            let map = {};
+            for (let i = 0; i < cardList.length; i++) {
+                let key = -1;
+                if (cardList[i].king === undefined) {
+                    key = cardList[i].value;
+                } else {
+                    key = cardList[i].king;
+                }
+                if (map.hasOwnProperty(key)) {
+                    map[key] ++;
+                } else {
+                    map[key] = 1;
+                }
+            }
+            let keys = Object.keys(map);
+            if (keys.length !== 4) {
+                return false;
+            }
+            let threeList = [];
+            let oneCount = 0;
+            for (let i in map) {
+                if (map[i] === 3) {
+                    threeList.push(i);
+                }
+                if (map[i] === 1) {
+                    oneCount ++;
+                }
+            }
+            if (threeList.length !== 2 || oneCount !== 2) {
+                return false;
+            }
+            if (Math.abs(Number(threeList[0]) - Number(threeList[1])) === 1) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    };
+
     //出牌是否符合规则
     that.isStantardCards = function (cardList) {
+        //是否散牌
         if (isOneCard(cardList)) {
             return true;
         }
+        //判断对子
         if (isOnePair(cardList)) {
             return true;
         }
+        //判断三张
         if (isThreeCard(cardList)) {
             return true;
         }
+        //判断王炸
         if (isKingBoom(cardList)) {
             return true;
         }
+        //判断普通炸弹
         if (isFourBoom(cardList)) {
             return true;
         }
+        //判断三带一
         if (isThreeWithOne(cardList)) {
             return true;
         }
+        //判断三带二
         if (isThreeWithTwo(cardList)) {
             return true;
         }
+        //判断飞机
         if (isPlane(cardList)) {
+            return true;
+        }
+        //判断飞机带两单张
+        if (isPlaneWithOne(cardList)) {
             return true;
         }
 

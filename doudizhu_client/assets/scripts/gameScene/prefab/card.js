@@ -90,8 +90,8 @@ cc.Class({
             "4": 0  //Diamond方块
         };
         const Kings = {
-            "1": 54,
-            "2": 53
+            "54": 54,    //小王
+            "53": 53     //大王
         };
         let spriteKey = "";
         if (card.shape) {
