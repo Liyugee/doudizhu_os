@@ -292,6 +292,48 @@ const CardManager = function () {
         }
     };
 
+    // 判断飞机带两对
+    const isPlaneWithTwo = function (cardList) {
+        if (cardList.length === 10) {
+            let map = {};
+            for (let i = 0; i < cardList.length; i++) {
+                let key = -1;
+                if (cardList[i].king === undefined) {
+                    key = cardList[i].value;
+                } else {
+                    key = cardList[i].king;
+                }
+                if (map.hasOwnProperty(key)) {
+                    map[key] ++;
+                } else {
+                    map[key] = 1;
+                }
+            }
+            let keys = Object.keys(map);
+            if (keys.length !== 4) {
+                return false;
+            }
+            let threeList = [];
+            let twoCount = 0;
+            for (let i in map) {
+                if (map[i] === 3) {
+                    threeList.push(i);
+                }
+                if (map[i] === 2) {
+                    twoCount ++;
+                }
+            }
+            if (threeList.length !== 2 || twoCount !== 2) {
+                return false;
+            }
+            if (Math.abs(Number(threeList[0]) - Number(threeList[1])) === 1) {
+                return true;
+            }
+
+        }
+        return false;
+    };
+
     //出牌是否符合规则
     that.isStantardCards = function (cardList) {
         //是否散牌
@@ -328,6 +370,10 @@ const CardManager = function () {
         }
         //判断飞机带两单张
         if (isPlaneWithOne(cardList)) {
+            return true;
+        }
+        //判断飞机带两对
+        if (isPlaneWithTwo(cardList)) {
             return true;
         }
 
