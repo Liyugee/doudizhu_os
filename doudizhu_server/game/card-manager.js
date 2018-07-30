@@ -75,18 +75,18 @@ const CardManager = function () {
         }
         let cardlist  = [
             Card(CardValue["3"],CardShape["S"]),
-            Card(CardValue["3"],CardShape["S"]),
-            Card(CardValue["3"],CardShape["S"]),
             Card(CardValue["4"],CardShape["S"]),
-            Card(CardValue["4"],CardShape["S"]),
-            Card(CardValue["4"],CardShape["S"]),
-            Card(CardValue["5"],CardShape["H"]),
-            Card(CardValue["5"],CardShape["H"]),
-            Card(CardValue["5"],CardShape["H"]),
-            Card(CardValue["6"],CardShape["H"]),
-            Card(CardValue["6"],CardShape["H"]),
-            Card(CardValue["6"],CardShape["H"]),
-            Card(CardValue["7"],CardShape["H"]),
+            Card(CardValue["5"],CardShape["S"]),
+            Card(CardValue["6"],CardShape["S"]),
+            Card(CardValue["7"],CardShape["S"]),
+            Card(CardValue["8"],CardShape["S"]),
+            Card(CardValue["9"],CardShape["H"]),
+            Card(CardValue["10"],CardShape["H"]),
+            Card(CardValue["J"],CardShape["H"]),
+            Card(CardValue["Q"],CardShape["H"]),
+            Card(CardValue["K"],CardShape["H"]),
+            Card(CardValue["A"],CardShape["H"]),
+            Card(CardValue["2"],CardShape["H"]),
             Card(CardValue["7"],CardShape["H"]),
             Card(CardValue["7"],CardShape["H"]),
             Card(undefined,undefined,Kings.K),
@@ -334,6 +334,26 @@ const CardManager = function () {
         return false;
     };
 
+    //判断顺子
+    const isStraight = function (cardList) {
+        var cardArr = JSON.parse(JSON.stringify(cardList));
+        if (cardArr.length >= 5) {
+            cardArr.sort((a, b)=>{
+                return a.value - b.value;
+            });
+            if (cardArr[cardArr.length-1].value === CardValue["2"]) {
+                return false;
+            }
+            for (let i = 0; i < (cardArr.length - 1); i++) {
+                if (Math.abs(cardArr[i].value - cardArr[i+1].value) !== 1) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    };
+
     //出牌是否符合规则
     that.isStantardCards = function (cardList) {
         //是否散牌
@@ -376,6 +396,11 @@ const CardManager = function () {
         if (isPlaneWithTwo(cardList)) {
             return true;
         }
+        //判断顺子
+        if (isStraight(cardList)) {
+            return true;
+        }
+
 
         return false;
     };
