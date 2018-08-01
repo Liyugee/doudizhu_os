@@ -32,7 +32,10 @@ const CardManager = function () {
     let that = {};
     let _cardList = [];
 
-    // 创建一副牌，洗牌
+    /**
+     * 创建一副牌，洗牌
+     * @returns {Array}
+     */
     const createCards = function () {
         let cardList = [];
         for (let i in CardValue) {
@@ -61,7 +64,10 @@ const CardManager = function () {
 
     _cardList = createCards();
 
-    //发牌，3个人各分17张，每分一张从排队减一张，剩3张底牌
+    /**
+     * 发牌，3个人各分17张，每分一张从排队减一张，剩3张底牌
+     * @returns {[null,null,null,null]}
+     */
     that.getThreeCards = function () {
         let threeCardsMap = {};
         for (let i = 0; i < 17; i++) {
@@ -75,20 +81,20 @@ const CardManager = function () {
         }
         let cardlist  = [
             Card(CardValue["3"],CardShape["S"]),
+            Card(CardValue["3"],CardShape["S"]),
+            Card(CardValue["4"],CardShape["S"]),
             Card(CardValue["4"],CardShape["S"]),
             Card(CardValue["5"],CardShape["S"]),
-            Card(CardValue["6"],CardShape["S"]),
-            Card(CardValue["7"],CardShape["S"]),
-            Card(CardValue["8"],CardShape["S"]),
+            Card(CardValue["5"],CardShape["S"]),
+            Card(CardValue["6"],CardShape["H"]),
+            Card(CardValue["6"],CardShape["H"]),
+            Card(CardValue["7"],CardShape["H"]),
+            Card(CardValue["7"],CardShape["H"]),
+            Card(CardValue["8"],CardShape["H"]),
+            Card(CardValue["8"],CardShape["H"]),
+            Card(CardValue["9"],CardShape["H"]),
             Card(CardValue["9"],CardShape["H"]),
             Card(CardValue["10"],CardShape["H"]),
-            Card(CardValue["J"],CardShape["H"]),
-            Card(CardValue["Q"],CardShape["H"]),
-            Card(CardValue["K"],CardShape["H"]),
-            Card(CardValue["A"],CardShape["H"]),
-            Card(CardValue["2"],CardShape["H"]),
-            Card(CardValue["7"],CardShape["H"]),
-            Card(CardValue["7"],CardShape["H"]),
             Card(undefined,undefined,Kings.K),
             Card(undefined,undefined,Kings.k)
         ];
@@ -100,14 +106,22 @@ const CardManager = function () {
         return [threeCardsMap[0],threeCardsMap[1],threeCardsMap[2],_cardList];
     };
 
-    //判断单张
+    /**
+     * 判断单张
+     * @param cardList
+     * @returns {boolean}
+     */
     const isOneCard = function (cardList) {
         if (cardList.length === 1) {
             return true;
         }
     };
 
-    //判断对子
+    /**
+     * 判断对子
+     * @param cardList
+     * @returns {boolean}
+     */
     const isOnePair = function (cardList) {
         if (cardList.length === 2) {
             if (cardList[0].value !== undefined && cardList[0].value === cardList[1].value) {
@@ -117,7 +131,11 @@ const CardManager = function () {
         return false;
     };
 
-    //判断三张
+    /**
+     * 判断三张
+     * @param cardList
+     * @returns {boolean}
+     */
     const isThreeCard = function (cardList) {
         if (cardList.length === 3) {
             let map = {};
@@ -135,7 +153,11 @@ const CardManager = function () {
         return false;
     };
 
-    //判断王炸
+    /**
+     * 判断王炸
+     * @param cardList
+     * @returns {boolean}
+     */
     const isKingBoom = function (cardList) {
         if (cardList[0].king !== undefined && cardList[1].king !== undefined) {
             return true;
@@ -143,7 +165,11 @@ const CardManager = function () {
         return false;
     };
 
-    //判断普通炸弹
+    /**
+     * 判断普通炸弹
+     * @param cardList
+     * @returns {boolean}
+     */
     const isFourBoom = function (cardList) {
         if (cardList.length === 4) {
             let map = {};
@@ -161,7 +187,11 @@ const CardManager = function () {
         return false;
     };
 
-    //判断三带一
+    /**
+     * 判断三带一
+     * @param cardList
+     * @returns {boolean}
+     */
     const isThreeWithOne = function (cardList) {
         if (cardList.length === 4) {
             let map = {};
@@ -193,7 +223,11 @@ const CardManager = function () {
         return false;
     };
 
-    //判断三带二
+    /**
+     * 判断三带二
+     * @param cardList
+     * @returns {boolean}
+     */
     const isThreeWithTwo = function (cardList) {
         if (cardList.length === 5) {
             let map = {};
@@ -225,7 +259,11 @@ const CardManager = function () {
         return false;
     };
 
-    //判断飞机
+    /**
+     * 判断飞机
+     * @param cardList
+     * @returns {boolean}
+     */
     const isPlane = function (cardList) {
         if (cardList.length === 6) {
             let map = {};
@@ -250,7 +288,11 @@ const CardManager = function () {
         return false;
     };
 
-    //判断飞机带两单张
+    /**
+     * 判断飞机带两单张
+     * @param cardList
+     * @returns {boolean}
+     */
     const isPlaneWithOne = function (cardList) {
         if (cardList.length === 8) {
             let map = {};
@@ -292,7 +334,11 @@ const CardManager = function () {
         }
     };
 
-    // 判断飞机带两对
+    /**
+     * 判断飞机带两对
+     * @param cardList
+     * @returns {boolean}
+     */
     const isPlaneWithTwo = function (cardList) {
         if (cardList.length === 10) {
             let map = {};
@@ -334,9 +380,13 @@ const CardManager = function () {
         return false;
     };
 
-    //判断顺子
+    /**
+     * 判断顺子
+     * @param cardList
+     * @returns {boolean}
+     */
     const isStraight = function (cardList) {
-        var cardArr = JSON.parse(JSON.stringify(cardList));
+        let cardArr = JSON.parse(JSON.stringify(cardList));
         if (cardArr.length >= 5) {
             cardArr.sort((a, b)=>{
                 return a.value - b.value;
@@ -350,6 +400,43 @@ const CardManager = function () {
                 }
             }
             return true;
+        }
+        return false;
+    };
+
+    /**
+     * 判断连对
+     * @param cardList
+     * @returns {boolean}
+     */
+    const isStraightPairs = function (cardList) {
+        if (cardList.length >= 6) {
+            let map = {};
+            for (let i = 0; i < cardList.length; i++) {
+                if (map.hasOwnProperty(cardList[i].value)) {
+                    map[cardList[i].value] ++;
+                } else {
+                    map[cardList[i].value] = 1;
+                }
+            }
+            for (let i in map) {
+                if (map[i] !== 2) {
+                    return false;
+                }
+                let keys = Object.keys(map);
+                keys.sort((a, b)=>{
+                    return Number(a) - Number(b);
+                });
+                if (Number(keys[keys.length-1]) === 2) {
+                    return false;
+                }
+                for (let i = 0; i < (keys.length - 1); i++) {
+                    if (Math.abs(Number(keys[i]) - Number(keys[i+1])) !== 1) {
+                        return false;
+                    }
+                }
+                return true;
+            }
         }
         return false;
     };
@@ -400,7 +487,10 @@ const CardManager = function () {
         if (isStraight(cardList)) {
             return true;
         }
-
+        //判断连对
+        if (isStraightPairs(cardList)) {
+            return true;
+        }
 
         return false;
     };
